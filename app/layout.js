@@ -1,5 +1,6 @@
 import { DM_Sans, DM_Mono } from 'next/font/google'
 import './globals.css'
+import { AuthProvider } from '@/lib/auth-context'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -14,7 +15,7 @@ const dmMono = DM_Mono({
 })
 
 export const metadata = {
-  title: 'Peptora.io — Research Intelligence Platform',
+  title: 'Peptora — Research Intelligence Platform',
   description: 'Precision tools and research-backed intelligence for peptide scientists.',
 }
 
@@ -22,7 +23,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${dmSans.variable} ${dmMono.variable}`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
