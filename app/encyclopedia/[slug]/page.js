@@ -40,15 +40,17 @@ function getBasicData(slug) {
 }
 
 export async function generateMetadata({ params }) {
-  const data = PEPTIDE_DATA[params.slug] || getBasicData(params.slug)
+  const { slug } = await params
+  const data = PEPTIDE_DATA[slug] || getBasicData(slug)
   return {
     title: `${data.name} — Peptora Encyclopedia`,
     description: `Research summary for ${data.name}: mechanism, dosing data, half-life, storage, and regulatory status.`,
   }
 }
 
-export default function PeptidePage({ params }) {
-  const data = PEPTIDE_DATA[params.slug] || getBasicData(params.slug)
+export default async function PeptidePage({ params }) {
+  const { slug } = await params
+  const data = PEPTIDE_DATA[slug] || getBasicData(slug)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--navy)' }}>
