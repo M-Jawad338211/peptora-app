@@ -1,5 +1,6 @@
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import AppDownloadBanner from '@/components/AppDownloadBanner'
 
 export default function Home() {
   const tools = [
@@ -84,6 +85,9 @@ export default function Home() {
           }}>Browse encyclopedia</Link>
         </div>
       </div>
+
+      {/* App download banner */}
+      <AppDownloadBanner />
 
       {/* Tools grid */}
       <div style={{
