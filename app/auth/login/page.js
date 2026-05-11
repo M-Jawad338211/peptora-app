@@ -17,8 +17,12 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
-      router.push('/dashboard')
+      const data = await login(email, password)
+      if (data.requires_verification) {
+        router.push(`/auth/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`)
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err) {
       setError(err.message || 'Invalid email or password')
     } finally {

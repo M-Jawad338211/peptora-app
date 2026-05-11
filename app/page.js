@@ -135,6 +135,8 @@ export default function Home() {
         color: 'var(--tx3)', lineHeight: 1.8,
       }}>
         For research and educational purposes only. Not medical advice. Consult a licensed healthcare provider before using any peptide or research compound.
+        <br />
+        <Link href="/privacy-policy" style={{ color: 'var(--tx2)', textDecoration: 'none' }}>Privacy Policy</Link>
       </div>
     </div>
   )
