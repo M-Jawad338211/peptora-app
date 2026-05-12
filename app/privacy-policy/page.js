@@ -99,7 +99,7 @@ const sections = [
     ],
   },
   {
-    num: '9',
+    num: '10',
     title: 'International Users',
     body: [
       'Peptora may process and store information in countries other than your own. Those countries may have data protection laws that differ from the laws where you live.',
@@ -107,21 +107,21 @@ const sections = [
     ],
   },
   {
-    num: '10',
+    num: '11',
     title: 'Children',
     body: [
       'Peptora is not intended for children under 18. We do not knowingly collect personal information from children. If you believe a child has provided information to Peptora, contact us so we can take appropriate action.',
     ],
   },
   {
-    num: '11',
+    num: '12',
     title: 'Changes to This Policy',
     body: [
       'We may update this Privacy Policy from time to time. If changes are material, we will take reasonable steps to notify users, such as updating the effective date, posting a notice, or sending an account email.',
     ],
   },
   {
-    num: '12',
+    num: '13',
     title: 'Contact',
     body: [
       'For privacy questions or requests, contact Peptora support through the contact method provided in the app or by emailing the address listed on Peptora communications.',
@@ -175,7 +175,95 @@ export default function PrivacyPolicyPage() {
 
         {/* Main prose */}
         <article className="privacy-prose">
-          {sections.map((section) => (
+          {sections.slice(0, 8).map((section) => (
+            <section key={section.num} id={`section-${section.num}`}>
+              <h2>
+                <span className="privacy-section-num">{section.num}.</span>
+                {section.title}
+              </h2>
+              {section.body.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </section>
+          ))}
+
+          {/* Account Deletion — standalone section with callout */}
+          <section id="account-deletion">
+            <h2>
+              <span className="privacy-section-num">9.</span>
+              Account Deletion
+            </h2>
+            <p>
+              You have the right to permanently delete your Peptora account and all associated personal data at any time.
+            </p>
+
+            {/* Callout box */}
+            <div style={{
+              background: 'rgba(239,68,68,0.06)',
+              border: '1px solid rgba(239,68,68,0.22)',
+              borderRadius: '14px',
+              padding: '22px 24px',
+              margin: '18px 0',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--tx)',
+                marginBottom: '18px',
+              }}>
+                How to delete your account
+              </div>
+
+              {/* Steps */}
+              {[
+                { n: '1', text: <span>Log in and open your <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Account Dashboard</strong> — tap your name in the top navigation.</span> },
+                { n: '2', text: <span>Scroll to the <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Danger Zone</strong> section and select <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Delete my account</strong>.</span> },
+                { n: '3', text: <span>Confirm the deletion when prompted. Your account and data will be permanently removed.</span> },
+              ].map(({ n, text }) => (
+                <div key={n} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{
+                    flexShrink: 0,
+                    width: '22px', height: '22px',
+                    borderRadius: '50%',
+                    background: 'rgba(239,68,68,0.15)',
+                    border: '1px solid rgba(239,68,68,0.30)',
+                    color: '#ef4444',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginTop: '1px',
+                  }}>
+                    {n}
+                  </div>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', lineHeight: 1.65 }}>
+                    {text}
+                  </span>
+                </div>
+              ))}
+
+              {/* Email fallback */}
+              <div style={{
+                paddingTop: '16px',
+                borderTop: '1px solid rgba(239,68,68,0.14)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '13.5px',
+                color: 'var(--tx2)',
+                lineHeight: 1.7,
+                marginTop: '4px',
+              }}>
+                Alternatively, email <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>support@peptora.app</strong> with the subject line{' '}
+                <em style={{ color: 'var(--tx)' }}>&quot;Account deletion request&quot;</em>{' '}
+                and include your registered email address. We will process your request within 30 days.
+              </div>
+            </div>
+
+            <p>
+              Deleting your account will permanently erase your profile, calculator history, cycle logs, AI conversation history, and all other personal data linked to your account. Subscription records may be retained for legal and billing compliance as described in Section 7. Deleted accounts cannot be recovered.
+            </p>
+          </section>
+
+          {sections.slice(8).map((section) => (
             <section key={section.num} id={`section-${section.num}`}>
               <h2>
                 <span className="privacy-section-num">{section.num}.</span>
