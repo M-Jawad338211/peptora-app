@@ -4,14 +4,27 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
+function NavLogo() {
+  return (
+    <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+      <div style={{
+        width: "34px", height: "34px", borderRadius: "9px",
+        background: "rgba(0,214,143,0.10)", border: "1px solid rgba(0,214,143,0.22)",
+        display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px",
+      }}>🧬</div>
+      <span style={{ fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 600, color: "var(--tx)", letterSpacing: "-0.2px" }}>
+        Peptora<em style={{ color: "var(--teal)", fontStyle: "normal" }}>.io</em>
+      </span>
+    </Link>
+  );
+}
+
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Close drawer on route change
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
+  const closeMenu = () => setMenuOpen(false);
 
   // Lock body scroll while drawer is open
   useEffect(() => {
@@ -34,22 +47,6 @@ export default function Nav() {
     router.push("/");
   };
 
-  const Logo = () => (
-    <Link
-      href="/"
-      style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}
-    >
-      <div style={{
-        width: "34px", height: "34px", borderRadius: "9px",
-        background: "rgba(0,214,143,0.10)", border: "1px solid rgba(0,214,143,0.22)",
-        display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px",
-      }}>🧬</div>
-      <span style={{ fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 600, color: "var(--tx)", letterSpacing: "-0.2px" }}>
-        Peptora<em style={{ color: "var(--teal)", fontStyle: "normal" }}>.io</em>
-      </span>
-    </Link>
-  );
-
   return (
     <>
       <nav style={{
@@ -62,7 +59,7 @@ export default function Nav() {
           width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 28px",
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px",
         }}>
-          <Logo />
+          <NavLogo />
 
           {/* Desktop nav links */}
           <div className="nav-desktop-links">
@@ -140,7 +137,7 @@ export default function Nav() {
       {/* Overlay */}
       {menuOpen && (
         <div
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
           style={{
             position: "fixed", inset: 0, zIndex: 90,
             background: "rgba(10,16,26,0.60)", backdropFilter: "blur(4px)",
@@ -166,9 +163,9 @@ export default function Nav() {
           padding: "16px 20px",
           borderBottom: "1px solid rgba(255,255,255,0.07)",
         }}>
-          <Logo />
+          <NavLogo />
           <button
-            onClick={() => setMenuOpen(false)}
+            onClick={closeMenu}
             aria-label="Close menu"
             style={{
               background: "transparent", border: "none", cursor: "pointer",
@@ -186,7 +183,7 @@ export default function Nav() {
           {links.map((link) => {
             const active = pathname === link.href;
             return (
-              <Link key={link.href} href={link.href} style={{
+              <Link key={link.href} href={link.href} onClick={closeMenu} style={{
                 display: "flex", alignItems: "center", gap: "12px",
                 textDecoration: "none", padding: "11px 12px", borderRadius: "10px",
                 marginBottom: "2px",

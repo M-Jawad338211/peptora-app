@@ -1,16 +1,17 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Nav from '@/components/Nav'
 
-export default function DownloadPage() {
-  const [platform, setPlatform] = useState('desktop')
+function detectPlatform() {
+  if (typeof window === 'undefined') return 'desktop'
+  const ua = navigator.userAgent
+  if (/android/i.test(ua)) return 'android'
+  if (/iphone|ipad|ipod/i.test(ua)) return 'ios'
+  return 'desktop'
+}
 
-  useEffect(() => {
-    const ua = navigator.userAgent
-    if (/android/i.test(ua)) setPlatform('android')
-    else if (/iphone|ipad|ipod/i.test(ua)) setPlatform('ios')
-    else setPlatform('desktop')
-  }, [])
+export default function DownloadPage() {
+  const [platform] = useState(detectPlatform)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--navy)' }}>
