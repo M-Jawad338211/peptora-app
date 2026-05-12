@@ -33,6 +33,18 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
+/* ── Nav ── */
+
+@media (max-width: 768px) {
+  .nav-desktop-links,
+  .nav-desktop-auth {
+    display: none !important;
+  }
+  .nav-hamburger {
+    display: flex !important;
+  }
+}
+
 /* ── Privacy Policy ── */
 
 .privacy-page {
