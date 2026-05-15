@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { calculator, auth, subscriptions } from "@/lib/api";
 import { generateFingerprint } from "@/lib/fingerprint";
+import SyringeVisual from "@/components/SyringeVisual";
 
 const PEPTIDES = [
   {
@@ -282,8 +283,6 @@ export default function Calculator() {
       if (err.status === 401) window.location.href = "/auth/signup";
     }
   };
-
-  const fillPct = result ? Math.min((result.drawUnits / 100) * 100, 100) : 0;
 
   return (
     <div
@@ -571,44 +570,7 @@ export default function Calculator() {
 
             {/* Visual syringe */}
             <div style={{ marginBottom: "24px" }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "10px",
-                  color: "var(--tx3)",
-                  marginBottom: "8px",
-                }}
-              >
-                SYRINGE FILL LEVEL
-              </div>
-              <div
-                style={{
-                  height: "16px",
-                  background: "var(--sl)",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${fillPct}%`,
-                    borderRadius: "8px",
-                    background: "linear-gradient(90deg, #00d68f, #00f0a0)",
-                    transition: "width 0.5s ease",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "11px",
-                  color: "var(--tx3)",
-                  marginTop: "4px",
-                }}
-              >
-                {fillPct.toFixed(1)}% of 100-unit syringe
-              </div>
+              <SyringeVisual units={result.drawUnits} />
             </div>
 
             {/* Steps */}
