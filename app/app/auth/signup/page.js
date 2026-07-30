@@ -1,286 +1,156 @@
-"use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { auth } from "@/lib/api";
-import { generateFingerprint } from "@/lib/fingerprint";
+'use client'
 
-const inputStyle = {
-  width: "100%",
-  background: "var(--navy2)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: "10px",
-  padding: "13px",
-  color: "var(--tx)",
-  fontFamily: "var(--font-sans)",
-  fontSize: "15px",
-  boxSizing: "border-box",
-};
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { auth } from '@/lib/api'
+import { generateFingerprint } from '@/lib/fingerprint'
+import AuthCard from '@/components/auth/AuthCard'
+import Field from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
 
 export default function SignupPage() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [fingerprint, setFingerprint] = useState("");
-  const router = useRouter();
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+  const [errors, setErrors] = useState({})
+  const [submitError, setSubmitError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [fingerprint, setFingerprint] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
-    generateFingerprint().then(setFingerprint);
-  }, []);
+    generateFingerprint().then(setFingerprint)
+  }, [])
+
+  const set = (key) => (e) => {
+    setForm((f) => ({ ...f, [key]: e.target.value }))
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev))
+  }
+
+  const validate = () => {
+    const next = {}
+    if (!form.fullName.trim()) next.fullName = 'Enter your name.'
+    // Deliberately loose: the API is the authority on address validity, and
+    // over-strict client regexes reject valid addresses.
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+      next.email = 'Enter a valid email address.'
+    }
+    if (form.password.length < 8) {
+      next.password = 'Use at least 8 characters.'
+    }
+    if (form.confirmPassword !== form.password) {
+      next.confirmPassword = 'Passwords do not match.'
+    }
+    return next
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault()
+    setSubmitError('')
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    const found = validate()
+    if (Object.keys(found).length) {
+      setErrors(found)
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      await auth.register(
-        email,
-        password,
-        confirmPassword,
-        fullName,
-        fingerprint,
-      );
-      router.push(
-        `/auth/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`,
-      );
+      await auth.register({
+        email: form.email,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        fullName: form.fullName,
+        deviceFingerprint: fingerprint,
+      })
+      // Registration returns no session — the OTP step is what logs you in.
+      router.replace(
+        `/app/auth/verify-email?email=${encodeURIComponent(form.email.trim().toLowerCase())}`
+      )
     } catch (err) {
-      setError(err.message || "Signup failed. Please try again.");
-    } finally {
-      setLoading(false);
+      setSubmitError(err.message || 'Signup failed. Please try again.')
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--navy)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: "400px" }}>
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-            marginBottom: "40px",
-          }}
-        >
-          <div
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "9px",
-              background: "rgba(0,214,143,0.10)",
-              border: "1px solid rgba(0,214,143,0.22)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "16px",
-            }}
-          >
-            🧬
-          </div>
-          <span
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "17px",
-              fontWeight: 600,
-              color: "var(--tx)",
-            }}
-          >
-            Peptora
-            <em style={{ color: "var(--teal)", fontStyle: "normal" }}>.io</em>
-          </span>
-        </Link>
-
-        <h1
-          style={{
-            fontFamily: "Georgia, serif",
-            fontSize: "30px",
-            color: "var(--tx)",
-            marginBottom: "6px",
-            fontWeight: 400,
-          }}
-        >
-          Create your account
-        </h1>
-        <p
-          style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: "14px",
-            color: "var(--tx2)",
-            marginBottom: "28px",
-          }}
-        >
-          Free forever. No credit card required.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "14px" }}>
-            <label
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                color: "var(--tx3)",
-                display: "block",
-                marginBottom: "6px",
-              }}
-            >
-              FULL NAME
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="John Doe"
-              disabled={loading}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ marginBottom: "14px" }}>
-            <label
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                color: "var(--tx3)",
-                display: "block",
-                marginBottom: "6px",
-              }}
-            >
-              EMAIL
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-              disabled={loading}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ marginBottom: "14px" }}>
-            <label
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                color: "var(--tx3)",
-                display: "block",
-                marginBottom: "6px",
-              }}
-            >
-              PASSWORD
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="8+ characters"
-              minLength={8}
-              disabled={loading}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ marginBottom: "14px" }}>
-            <label
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                color: "var(--tx3)",
-                display: "block",
-                marginBottom: "6px",
-              }}
-            >
-              CONFIRM PASSWORD
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              placeholder="Re-enter password"
-              disabled={loading}
-              style={inputStyle}
-            />
-          </div>
-
-          {error && (
-            <p
-              style={{
-                color: "var(--red, #ff5f5f)",
-                fontSize: "13px",
-                marginBottom: "14px",
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "15px",
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, #00d68f, #00f0a0)",
-              color: "#021a0e",
-              fontFamily: "var(--font-sans)",
-              fontSize: "15px",
-              fontWeight: 600,
-              border: "none",
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1,
-              marginTop: "6px",
-            }}
-          >
-            {loading ? "Creating account…" : "Create free account"}
-          </button>
-        </form>
-
-        <p
-          style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: "13.5px",
-            color: "var(--tx3)",
-            textAlign: "center",
-            marginTop: "24px",
-          }}
-        >
-          Already have an account?{" "}
-          <Link
-            href="/app/auth/login"
-            style={{ color: "var(--teal)", textDecoration: "none" }}
-          >
+    <AuthCard
+      title="Create free account"
+      subtitle="Verify your email to unlock the app."
+      footer={
+        <>
+          Already have an account?{' '}
+          <Link href="/app/auth/login" className="text-teal no-underline">
             Log in
           </Link>
-        </p>
-      </div>
-    </div>
-  );
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} noValidate>
+        <Field
+          label="Full name"
+          name="name"
+          autoComplete="name"
+          required
+          value={form.fullName}
+          onChange={set('fullName')}
+          error={errors.fullName}
+          placeholder="Alex Researcher"
+          className="mb-3.5"
+        />
+        <Field
+          label="Email"
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          required
+          value={form.email}
+          onChange={set('email')}
+          error={errors.email}
+          placeholder="you@example.com"
+          className="mb-3.5"
+        />
+        <Field
+          label="Password"
+          type="password"
+          name="new-password"
+          autoComplete="new-password"
+          required
+          value={form.password}
+          onChange={set('password')}
+          error={errors.password}
+          hint="At least 8 characters."
+          placeholder="••••••••"
+          className="mb-3.5"
+        />
+        <Field
+          label="Confirm password"
+          type="password"
+          name="confirm-password"
+          autoComplete="new-password"
+          required
+          value={form.confirmPassword}
+          onChange={set('confirmPassword')}
+          error={errors.confirmPassword}
+          placeholder="••••••••"
+          className="mb-5"
+        />
+
+        {submitError && (
+          <p role="alert" className="mb-3.5 text-[13px] text-danger">
+            {submitError}
+          </p>
+        )}
+
+        <Button type="submit" disabled={loading} fullWidth>
+          {loading ? 'Creating account…' : 'Create account'}
+        </Button>
+      </form>
+    </AuthCard>
+  )
 }

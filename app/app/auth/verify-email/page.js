@@ -1,141 +1,147 @@
 'use client'
-import { useState, Suspense } from 'react'
+
+import { Suspense, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { auth } from '@/lib/api'
-import { useAuth } from '@/lib/auth-context'
+import { qk } from '@/lib/query/keys'
+import AuthCard from '@/components/auth/AuthCard'
+import Field from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
 
-const inputStyle = {
-  width: '100%', background: 'var(--navy2)', border: '1px solid rgba(255,255,255,0.12)',
-  borderRadius: '10px', padding: '13px', color: 'var(--tx)',
-  fontFamily: 'var(--font-sans)', fontSize: '15px', boxSizing: 'border-box',
-}
+const RESEND_COOLDOWN_SECONDS = 30
 
 function VerifyEmailForm() {
   const params = useSearchParams()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
   const [email, setEmail] = useState(params.get('email') || '')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
-  const [info, setInfo] = useState('')
+  const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(false)
-  const [resending, setResending] = useState(false)
-  const router = useRouter()
-  const { refresh } = useAuth()
+  const [cooldown, setCooldown] = useState(0)
+  const submittedFor = useRef(null)
 
-  const handleVerify = async (e) => {
-    e.preventDefault()
+  // The API rate-limits resends to 3/minute; a visible countdown beats
+  // letting the user hammer the button into a 429.
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [cooldown])
+
+  const verify = async (code) => {
     setError('')
-    if (otp.length !== 6) {
-      setError('Enter the 6-digit code from your email.')
-      return
-    }
+    setNotice('')
     setLoading(true)
     try {
-      await auth.verifyEmail(email, otp)
-      await refresh()
-      router.push('/dashboard?welcome=1')
+      await auth.verifyEmail({ email, otp: code })
+      // This is the call that actually establishes the session.
+      await queryClient.invalidateQueries({ queryKey: qk.session })
+      router.replace('/app/home')
     } catch (err) {
-      setError(err.message || 'Invalid or expired code. Try requesting a new one.')
-    } finally {
+      setError(err.message || 'Invalid or expired verification code')
+      submittedFor.current = null
       setLoading(false)
+    }
+  }
+
+  const handleOtpChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+    setOtp(value)
+    // Auto-submit on the sixth digit, guarded so a re-render cannot resubmit
+    // the same code and burn one of the five allowed attempts.
+    if (value.length === 6 && submittedFor.current !== value && email) {
+      submittedFor.current = value
+      verify(value)
     }
   }
 
   const handleResend = async () => {
     setError('')
-    setInfo('')
-    setResending(true)
+    setNotice('')
     try {
       await auth.resendVerificationOtp(email)
-      setInfo('A new code has been sent to your email.')
+      setNotice('A new code is on its way.')
+      setCooldown(RESEND_COOLDOWN_SECONDS)
     } catch (err) {
-      setError(err.message || 'Could not resend. Try again in a moment.')
-    } finally {
-      setResending(false)
+      setError(err.message || 'Could not send a new code.')
     }
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ width: '100%', maxWidth: '400px' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginBottom: '40px' }}>
-          <div style={{
-            width: '34px', height: '34px', borderRadius: '9px',
-            background: 'rgba(0,214,143,0.10)', border: '1px solid rgba(0,214,143,0.22)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
-          }}>🧬</div>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '17px', fontWeight: 600, color: 'var(--tx)' }}>
-            Peptora<em style={{ color: 'var(--teal)', fontStyle: 'normal' }}>.io</em>
-          </span>
+    <AuthCard
+      title="Verify your email"
+      subtitle="Enter the 6-digit code we sent to your email address."
+      footer={
+        <Link href="/app/auth/login" className="text-tx3-body no-underline">
+          ← Back to login
         </Link>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (otp.length === 6) verify(otp)
+        }}
+        noValidate
+      >
+        <Field
+          label="Email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-3.5"
+        />
+        <Field
+          label="Verification code"
+          // Lets iOS/Android offer the emailed code straight from the keyboard.
+          autoComplete="one-time-code"
+          inputMode="numeric"
+          maxLength={6}
+          required
+          value={otp}
+          onChange={handleOtpChange}
+          placeholder="000000"
+          error={error}
+          className="mb-5"
+          inputClassName="text-center text-2xl font-bold tracking-[8px]"
+        />
 
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '30px', color: 'var(--tx)', marginBottom: '6px', fontWeight: 400 }}>
-          Verify your email
-        </h1>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', marginBottom: '28px', lineHeight: 1.6 }}>
-          Enter the 6-digit code we sent to your email address.
-        </p>
+        {notice && (
+          <p role="status" className="mb-3.5 text-[13px] text-teal">
+            {notice}
+          </p>
+        )}
 
-        <form onSubmit={handleVerify}>
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', display: 'block', marginBottom: '6px' }}>EMAIL</label>
-            <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)}
-              required placeholder="you@example.com" disabled={loading} style={inputStyle}
-            />
-          </div>
+        <Button type="submit" disabled={loading || otp.length !== 6} fullWidth>
+          {loading ? 'Verifying…' : 'Verify email'}
+        </Button>
+      </form>
 
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', display: 'block', marginBottom: '6px' }}>VERIFICATION CODE</label>
-            <input
-              type="text" inputMode="numeric" value={otp}
-              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              required placeholder="000000" maxLength={6} disabled={loading}
-              style={{ ...inputStyle, fontSize: '24px', fontWeight: 700, letterSpacing: '6px', textAlign: 'center' }}
-            />
-          </div>
-
-          {error && (
-            <p style={{ color: 'var(--red, #ff5f5f)', fontSize: '13px', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-              {error}
-            </p>
-          )}
-          {info && (
-            <p style={{ color: 'var(--teal)', fontSize: '13px', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-              {info}
-            </p>
-          )}
-
-          <button type="submit" disabled={loading} style={{
-            width: '100%', padding: '15px', borderRadius: '12px',
-            background: 'linear-gradient(135deg, #00d68f, #00f0a0)',
-            color: '#021a0e', fontFamily: 'var(--font-sans)', fontSize: '15px',
-            fontWeight: 600, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
-          }}>
-            {loading ? 'Verifying…' : 'Verify email'}
-          </button>
-        </form>
-
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13.5px', color: 'var(--tx3)', textAlign: 'center', marginTop: '20px' }}>
-          Didn&apos;t receive it?{' '}
-          <button onClick={handleResend} disabled={resending}
-            style={{ color: 'var(--teal)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13.5px', fontFamily: 'var(--font-sans)', padding: 0 }}>
-            {resending ? 'Sending…' : 'Send a new code'}
-          </button>
-        </p>
-
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13.5px', color: 'var(--tx3)', textAlign: 'center', marginTop: '10px' }}>
-          <Link href="/app/auth/login" style={{ color: 'var(--tx3)', textDecoration: 'none' }}>← Back to login</Link>
-        </p>
+      <div className="mt-4 text-center">
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={cooldown > 0 || !email}
+          className="tap px-3 font-mono text-[11px] text-tx3-body disabled:opacity-50"
+        >
+          {cooldown > 0 ? `Send a new code in ${cooldown}s` : 'Send a new code'}
+        </button>
       </div>
-    </div>
+    </AuthCard>
   )
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <VerifyEmailForm />
     </Suspense>
   )

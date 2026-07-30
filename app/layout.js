@@ -1,6 +1,6 @@
 import { DM_Sans, DM_Mono } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from '@/lib/auth-context'
+import Providers from '@/components/Providers'
 
 // Named --font-dm-* rather than --font-sans/--font-mono: globals.css defines
 // the Tailwind `--font-sans` theme token as `var(--font-dm-sans), system-ui`,
@@ -40,9 +40,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${dmSans.variable} ${dmMono.variable}`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+import { useSession, useLogout } from "@/lib/auth/session";
 
 function NavLogo() {
   return (
@@ -22,7 +22,9 @@ function NavLogo() {
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, isPending: loading } = useSession();
+  // Marketing nav returns to the homepage rather than the login screen.
+  const logout = useLogout("/");
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
@@ -43,7 +45,6 @@ export default function Nav() {
   const handleLogout = async () => {
     setMenuOpen(false);
     await logout();
-    router.push("/");
   };
 
   return (
