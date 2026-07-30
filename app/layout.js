@@ -25,6 +25,11 @@ export const metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Peptora',
   },
+  icons: {
+    // iOS ignores manifest icons for the home-screen icon in several versions,
+    // so this link is what gives an installed app its icon there.
+    apple: '/icons/apple-touch-icon.png',
+  },
 }
 
 export const viewport = {
