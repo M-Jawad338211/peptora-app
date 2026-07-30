@@ -1,15 +1,15 @@
 'use client'
 import { useState } from 'react'
-import Nav from '@/components/Nav'
 
 const SUBJECTS = [
   'General inquiry',
   'Technical issue',
-  'Billing & subscription',
   'Feature request',
   'Report a bug',
   'Other',
 ]
+
+const SUPPORT_EMAIL = 'info@peptora.io'
 
 export default function SupportPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' })
@@ -26,13 +26,28 @@ export default function SupportPage() {
     return e
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
+
+    // There is no support endpoint on the API. This previously waited a second
+    // and claimed success, dropping the message on the floor; composing a real
+    // email in the user's mail client is the honest version.
+    const body = [
+      `From: ${form.name.trim()}`,
+      `Reply to: ${form.email.trim()}`,
+      '',
+      form.message.trim(),
+    ].join('\n')
+
+    window.location.href =
+      `mailto:${SUPPORT_EMAIL}` +
+      `?subject=${encodeURIComponent(`[Peptora] ${form.subject}`)}` +
+      `&body=${encodeURIComponent(body)}`
+
     setLoading(false)
     setSubmitted(true)
   }
@@ -69,8 +84,7 @@ export default function SupportPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--navy)' }}>
-      <Nav />
+    <>
       <div style={{ maxWidth: '620px', margin: '0 auto', padding: '64px 28px' }}>
 
         {/* Header */}
@@ -89,7 +103,7 @@ export default function SupportPage() {
             How can we help?
           </h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', color: 'var(--tx2)', fontWeight: 300 }}>
-            Fill out the form below and we&apos;ll get back to you within 24 hours.
+            Fill this in and we&apos;ll open your email app with the message ready to send.
           </p>
         </div>
 
@@ -109,11 +123,14 @@ export default function SupportPage() {
               fontFamily: 'Georgia, serif', fontSize: '26px',
               color: 'var(--tx)', fontWeight: 400, marginBottom: '10px',
             }}>
-              Message sent
+              Check your email app
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--tx2)', fontWeight: 300, lineHeight: 1.6 }}>
-              Thanks for reaching out, <strong style={{ color: 'var(--tx)', fontWeight: 500 }}>{form.name}</strong>.<br />
-              We&apos;ll reply to <strong style={{ color: 'var(--teal)', fontWeight: 400 }}>{form.email}</strong> within 24 hours.
+              Thanks, <strong style={{ color: 'var(--tx)', fontWeight: 500 }}>{form.name}</strong>. Your email app should have opened with the
+              message ready — press send and we&apos;ll reply to{' '}
+              <strong style={{ color: 'var(--teal)', fontWeight: 400 }}>{form.email}</strong>.<br />
+              If nothing opened, email us directly at{' '}
+              <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: 'var(--teal)' }}>{SUPPORT_EMAIL}</a>.
             </p>
             <button
               onClick={() => { setSubmitted(false); setForm({ name: '', email: '', subject: SUBJECTS[0], message: '' }) }}
@@ -215,6 +232,6 @@ export default function SupportPage() {
           </a>
         </p>
       </div>
-    </div>
+    </>
   )
 }

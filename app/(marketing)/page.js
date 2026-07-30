@@ -1,4 +1,3 @@
-import Nav from '@/components/Nav'
 import Link from 'next/link'
 
 export default function Home() {
@@ -10,8 +9,7 @@ export default function Home() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--navy)' }}>
-      <Nav />
+    <>
 
       {/* Hero */}
       <div style={{
@@ -130,6 +128,6 @@ export default function Home() {
         <br />
         <Link href="/privacy-policy" style={{ color: 'var(--tx2)', textDecoration: 'none' }}>Privacy Policy</Link>
       </div>
-    </div>
+    </>
   )
 }

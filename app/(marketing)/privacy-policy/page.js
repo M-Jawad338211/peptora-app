@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Nav from '@/components/Nav'
 
 export const metadata = {
   title: 'Privacy Policy — Peptora',
@@ -131,8 +130,7 @@ const sections = [
 
 export default function PrivacyPolicyPage() {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--navy)' }}>
-      <Nav />
+    <>
 
       <main className="privacy-page">
 
@@ -283,6 +281,6 @@ export default function PrivacyPolicyPage() {
         </div>
 
       </main>
-    </div>
+    </>
   )
 }

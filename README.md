@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Peptora Web
 
-## Getting Started
+Installable PWA for peptide research — dose calculator, protocol tracker and
+peptide encyclopedia. Next.js 16 App Router, React 19, Tailwind v4.
 
-First, run the development server:
+Built to match the native app (`../peptora-android`) feature-for-feature while
+the store releases are pending. See `CLAUDE.md` for architecture and
+conventions.
+
+## Running locally
+
+The web app has no database of its own; it talks to `../peptora-api`.
 
 ```bash
+# 1. API — needs WEB_URL pointed at localhost, or it issues Secure cookies
+#    that the browser drops over http (login appears to work, /auth/me 401s)
+cd ../peptora-api
+printf 'WEB_URL=http://localhost:3000\nENVIRONMENT=development\n' > .env.local
+source venv/bin/activate && uvicorn app.main:app --port 8000
+
+# 2. Web
+cd ../peptora-app
+printf 'API_ORIGIN=http://localhost:8000\n' > .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 for the marketing site, or
+http://localhost:3000/app/home for the app itself.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Against a throwaway database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To exercise signup without touching production data:
 
-## Learn More
+```bash
+docker run -d --name peptora-dev-db \
+  -e POSTGRES_PASSWORD=peptora -e POSTGRES_USER=peptora -e POSTGRES_DB=peptora \
+  -p 55432:5432 postgres:16-alpine
 
-To learn more about Next.js, take a look at the following resources:
+cd ../peptora-api
+DATABASE_URL="postgresql://peptora:peptora@127.0.0.1:55432/peptora" \
+  uvicorn app.main:app --port 8000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Seed the encyclopedia with
+`python scripts/seed_peptides.py ../docs/peptides-json/*.json ../docs/*.json`.
+Note the shipped JSON files cross-reference `bpc-157`, which is not among
+them, so the relations pass fails until that file exists.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Registration sends a real verification email through Resend, so use an address
+you control.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server |
+| `npm run build` | Production build |
+| `npm test` | Vitest — calculation engine, formatting, API error shapes |
+| `npm run lint` | ESLint |
+| `node scripts/gen-icons.mjs` | Regenerate PWA icons (output is committed) |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment
+
+| Variable | Where | Notes |
+|---|---|---|
+| `API_ORIGIN` | Vercel dashboard / `.env.local` | The FastAPI backend. **Server-only** — the browser only ever calls `/api/*`, which Next proxies. |
+
+## Deploy
+
+```bash
+vercel --prod
+```
+
+Bump `VERSION` in `public/sw.js` on any deploy that changes the app shell, or
+returning users keep the cached one until they hard-reload.
