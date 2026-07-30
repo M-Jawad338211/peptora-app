@@ -1,14 +1,7 @@
-import { ChartLine } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import Tracker from '@/components/tracker/Tracker'
 
 export const metadata = { title: 'Cycle Tracker · Peptora' }
 
-export default function ChartLinePage() {
-  return (
-    <EmptyState
-      icon={ChartLine}
-      title="Cycle Tracker"
-      body="Log daily doses and review history. Coming in a later phase."
-    />
-  )
+export default function TrackerPage() {
+  return <Tracker />
 }

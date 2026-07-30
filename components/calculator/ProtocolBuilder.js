@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { peptides as peptidesApi, calculator } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
@@ -25,7 +25,8 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   const [peptideId, setPeptideId] = useState(initialPeptideId)
   const [vialMg, setVialMg] = useState('')
   const [reconstituted, setReconstituted] = useState(true)
-  const [unit, setUnit] = useState('mcg')
+  const [unitInput, setUnitInput] = useState('mcg')
+  const [unitTouched, setUnitTouched] = useState(false)
   const [syringeType, setSyringeType] = useState('U-100')
   const [bacMl, setBacMl] = useState('')
   const [targetDose, setTargetDose] = useState('')
@@ -33,11 +34,6 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
 
   const [saving, setSaving] = useState(false)
   const [saveState, setSaveState] = useState(null) // {ok, message}
-
-  // True once the user has picked a unit themselves. Native overwrites the
-  // unit whenever a peptide loads, silently turning a typed "5 mg" into
-  // "5 mcg"; the default is only applied while the user hasn't chosen.
-  const unitTouched = useRef(false)
 
   const { data: peptide } = useQuery({
     queryKey: qk.peptide(peptideId),
@@ -53,10 +49,11 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   const iuPerMg = peptide?.iu_per_mg ?? null
   const availableUnits = iuPerMg ? ['mcg', 'mg', 'IU'] : ['mcg', 'mg']
 
-  useEffect(() => {
-    if (!defaults || unitTouched.current) return
-    if (defaults.dose_unit) setUnit(defaults.dose_unit)
-  }, [defaults])
+  // Derived rather than synced via an effect: the peptide's default unit
+  // applies until the user picks one, after which theirs wins. Native
+  // reapplies the default on every peptide load, silently turning a typed
+  // "5 mg" into "5 mcg".
+  const unit = unitTouched ? unitInput : (defaults?.dose_unit ?? 'mcg')
 
   // Debounced so a fast typist doesn't trigger a recalculation — and a fresh
   // 900ms syringe animation — on every keystroke.
@@ -232,8 +229,8 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
               options={availableUnits}
               value={unit}
               onChange={(u) => {
-                unitTouched.current = true
-                setUnit(u)
+                setUnitTouched(true)
+                setUnitInput(u)
               }}
               label="Dose unit"
             />
