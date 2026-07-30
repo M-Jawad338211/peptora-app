@@ -1,14 +1,13 @@
-import { Calculator } from 'lucide-react'
-import EmptyState from '@/components/ui/EmptyState'
+import ProtocolBuilder from '@/components/calculator/ProtocolBuilder'
 
-export const metadata = { title: 'Dose Calculator · Peptora' }
+export const metadata = {
+  title: 'Dose Calculator · Peptora',
+  description:
+    'Reconstitution and syringe dosing calculator for peptide research.',
+}
 
-export default function CalculatorPage() {
-  return (
-    <EmptyState
-      icon={Calculator}
-      title="Dose Calculator"
-      body="Reconstitution and syringe dosing. Coming in a later phase."
-    />
-  )
+export default async function CalculatorPage({ searchParams }) {
+  // Lets the encyclopedia deep-link straight into a peptide's calculation.
+  const { peptide } = await searchParams
+  return <ProtocolBuilder initialPeptideId={peptide ?? null} />
 }
