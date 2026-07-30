@@ -126,7 +126,7 @@ function VerifyEmailForm() {
         </p>
 
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13.5px', color: 'var(--tx3)', textAlign: 'center', marginTop: '10px' }}>
-          <Link href="/auth/login" style={{ color: 'var(--tx3)', textDecoration: 'none' }}>← Back to login</Link>
+          <Link href="/app/auth/login" style={{ color: 'var(--tx3)', textDecoration: 'none' }}>← Back to login</Link>
         </p>
       </div>
     </div>

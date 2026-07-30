@@ -274,7 +274,7 @@ export default function SignupPage() {
         >
           Already have an account?{" "}
           <Link
-            href="/auth/login"
+            href="/app/auth/login"
             style={{ color: "var(--teal)", textDecoration: "none" }}
           >
             Log in

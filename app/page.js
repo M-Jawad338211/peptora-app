@@ -1,17 +1,12 @@
 import Nav from '@/components/Nav'
 import Link from 'next/link'
-import AppDownloadBanner from '@/components/AppDownloadBanner'
 
 export default function Home() {
   const tools = [
-    { href: '/calculator', icon: '⚗️', label: 'Dose Calculator', desc: 'Reconstitution and syringe dosing — free forever', badge: 'Free' },
-    { href: '/encyclopedia', icon: '📖', label: 'Peptide Encyclopedia', desc: '100 peptides with mechanisms, dosing and research status', badge: 'Free' },
-    { href: '/stack-checker', icon: '🔬', label: 'Stack Checker', desc: 'AI compatibility analysis for peptide combinations', badge: 'Pro' },
-    { href: '/cycle-tracker', icon: '📊', label: 'Cycle Tracker', desc: 'Log daily protocols and get weekly AI summaries', badge: 'Pro' },
-    { href: '/protocol-finder', icon: '🎯', label: 'Protocol Finder', desc: 'Goal-based AI protocol recommendations', badge: 'Pro' },
-    { href: '/ai-assistant', icon: '🤖', label: 'AI Research Assistant', desc: 'Ask any peptide question — research-based answers', badge: 'Pro' },
-    { href: '/vendors', icon: '🛡️', label: 'Vendor Status Board', desc: 'Live trust scores and COA tracking for 25+ vendors', badge: 'Free' },
-    { href: '/regulations', icon: '⚖️', label: 'Regulatory Tracker', desc: 'FDA, MHRA, Health Canada status — updated weekly', badge: 'Free' },
+    { href: '/app/calculator', icon: '⚗️', label: 'Dose Calculator', desc: 'Reconstitution and syringe dosing — free forever', badge: 'Free' },
+    { href: '/app/encyclopedia', icon: '📖', label: 'Peptide Encyclopedia', desc: 'Mechanisms, studied dose ranges and research status', badge: 'Free' },
+    { href: '/app/protocols', icon: '🧪', label: 'Protocols', desc: 'Save your regimens and log every dose', badge: 'Free' },
+    { href: '/app/tracker', icon: '📊', label: 'Cycle Tracker', desc: 'Log daily doses and review your history', badge: 'Free' },
   ]
 
   return (
@@ -70,14 +65,14 @@ export default function Home() {
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/calculator" style={{
+          <Link href="/app/calculator" style={{
             fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 600,
             color: '#021a0e', textDecoration: 'none',
             background: 'linear-gradient(135deg, #00d68f, #00f0a0)',
             borderRadius: '13px', padding: '16px 36px',
             boxShadow: '0 8px 32px rgba(0,214,143,0.3)',
           }}>Open dose calculator →</Link>
-          <Link href="/encyclopedia" style={{
+          <Link href="/app/encyclopedia" style={{
             fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 400,
             color: 'var(--tx2)', textDecoration: 'none',
             background: 'var(--sl)', border: '1px solid rgba(255,255,255,0.14)',
@@ -85,9 +80,6 @@ export default function Home() {
           }}>Browse encyclopedia</Link>
         </div>
       </div>
-
-      {/* App download banner */}
-      <AppDownloadBanner />
 
       {/* Tools grid */}
       <div style={{

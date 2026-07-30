@@ -76,7 +76,7 @@ export default function LoginPage() {
           </div>
 
           <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-            <Link href="/auth/forgot-password" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', textDecoration: 'none' }}>
+            <Link href="/app/auth/forgot-password" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', textDecoration: 'none' }}>
               Forgot password?
             </Link>
           </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
 
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13.5px', color: 'var(--tx3)', textAlign: 'center', marginTop: '24px' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" style={{ color: 'var(--teal)', textDecoration: 'none' }}>Sign up free</Link>
+          <Link href="/app/auth/signup" style={{ color: 'var(--teal)', textDecoration: 'none' }}>Sign up free</Link>
         </p>
       </div>
     </div>

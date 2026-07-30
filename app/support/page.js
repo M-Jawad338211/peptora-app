@@ -89,7 +89,7 @@ export default function SupportPage() {
             How can we help?
           </h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', color: 'var(--tx2)', fontWeight: 300 }}>
-            Fill out the form below and we'll get back to you within 24 hours.
+            Fill out the form below and we&apos;ll get back to you within 24 hours.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function SupportPage() {
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--tx2)', fontWeight: 300, lineHeight: 1.6 }}>
               Thanks for reaching out, <strong style={{ color: 'var(--tx)', fontWeight: 500 }}>{form.name}</strong>.<br />
-              We'll reply to <strong style={{ color: 'var(--teal)', fontWeight: 400 }}>{form.email}</strong> within 24 hours.
+              We&apos;ll reply to <strong style={{ color: 'var(--teal)', fontWeight: 400 }}>{form.email}</strong> within 24 hours.
             </p>
             <button
               onClick={() => { setSubmitted(false); setForm({ name: '', email: '', subject: SUBJECTS[0], message: '' }) }}

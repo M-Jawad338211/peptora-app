@@ -1,7 +1,6 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { auth } from '@/lib/api'
 
 const inputStyle = {
@@ -10,49 +9,21 @@ const inputStyle = {
   fontFamily: 'var(--font-sans)', fontSize: '15px', boxSizing: 'border-box',
 }
 
-function ResetPasswordForm() {
-  const params = useSearchParams()
-  const token = params.get('token') || ''
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
-  const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  if (!token) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-          <p style={{ color: 'var(--red, #ff5f5f)', fontFamily: 'var(--font-sans)', fontSize: '15px', marginBottom: '20px' }}>
-            Invalid or missing reset token.
-          </p>
-          <Link href="/auth/forgot-password" style={{ color: 'var(--teal)', fontFamily: 'var(--font-sans)', fontSize: '14px' }}>
-            Request a new link
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
     setLoading(true)
     try {
-      await auth.resetPassword(token, password)
-      setDone(true)
-      setTimeout(() => router.push('/auth/login'), 2500)
+      await auth.forgotPassword(email)
+      setSent(true)
     } catch (err) {
-      setError(err.message || 'Invalid or expired reset link. Request a new one.')
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -72,38 +43,44 @@ function ResetPasswordForm() {
           </span>
         </Link>
 
-        {done ? (
+        {sent ? (
           <>
+            <div style={{
+              width: '52px', height: '52px', borderRadius: '14px',
+              background: 'rgba(0,214,143,0.10)', border: '1px solid rgba(0,214,143,0.22)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '24px', marginBottom: '20px',
+            }}>✉️</div>
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', color: 'var(--tx)', marginBottom: '10px', fontWeight: 400 }}>
-              Password updated
+              Check your email
             </h1>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', lineHeight: 1.6 }}>
-              Your password has been reset. Redirecting you to login…
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', lineHeight: 1.6, marginBottom: '28px' }}>
+              If <strong style={{ color: 'var(--tx)' }}>{email}</strong> is registered, you&apos;ll receive a password reset link within a few minutes.
             </p>
+            <Link href="/app/auth/login" style={{
+              display: 'block', textAlign: 'center', padding: '15px', borderRadius: '12px',
+              background: 'var(--sl, rgba(255,255,255,0.06))', border: '1px solid rgba(255,255,255,0.12)',
+              color: 'var(--tx2)', fontFamily: 'var(--font-sans)', fontSize: '15px',
+              fontWeight: 500, textDecoration: 'none',
+            }}>
+              Back to login
+            </Link>
           </>
         ) : (
           <>
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '30px', color: 'var(--tx)', marginBottom: '6px', fontWeight: 400 }}>
-              Set new password
+              Reset password
             </h1>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', marginBottom: '28px' }}>
-              Choose a strong password for your account.
+              Enter your email and we&apos;ll send a reset link.
             </p>
 
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', display: 'block', marginBottom: '6px' }}>NEW PASSWORD</label>
+                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', display: 'block', marginBottom: '6px' }}>EMAIL</label>
                 <input
-                  type="password" value={password} onChange={e => setPassword(e.target.value)}
-                  required placeholder="8+ characters" minLength={8} disabled={loading} style={inputStyle}
-                />
-              </div>
-
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)', display: 'block', marginBottom: '6px' }}>CONFIRM PASSWORD</label>
-                <input
-                  type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                  required placeholder="Re-enter password" disabled={loading} style={inputStyle}
+                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  required placeholder="you@example.com" disabled={loading} style={inputStyle}
                 />
               </div>
 
@@ -120,24 +97,16 @@ function ResetPasswordForm() {
                 fontWeight: 600, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.7 : 1,
               }}>
-                {loading ? 'Updating…' : 'Update password'}
+                {loading ? 'Sending…' : 'Send reset link'}
               </button>
             </form>
 
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13.5px', color: 'var(--tx3)', textAlign: 'center', marginTop: '24px' }}>
-              <Link href="/auth/login" style={{ color: 'var(--tx3)', textDecoration: 'none' }}>← Back to login</Link>
+              <Link href="/app/auth/login" style={{ color: 'var(--tx3)', textDecoration: 'none' }}>← Back to login</Link>
             </p>
           </>
         )}
       </div>
     </div>
-  )
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense>
-      <ResetPasswordForm />
-    </Suspense>
   )
 }
