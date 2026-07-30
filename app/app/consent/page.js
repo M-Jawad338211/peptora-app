@@ -87,7 +87,7 @@ export default function ConsentPage() {
 
       <footer className="mt-6 border-t border-hairline pt-5">
         {error && (
-          <p role="alert" className="mb-3 text-[13px] text-danger">
+          <p role="alert" className="mb-3 text-[13px] text-danger-text">
             {error}
           </p>
         )}

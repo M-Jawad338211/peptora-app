@@ -178,7 +178,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
   return (
     <div className="mx-auto max-w-[760px]">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-extrabold text-tx">New protocol</h1>
+        <h2 className="text-2xl font-extrabold text-tx">New protocol</h2>
         <Button variant="secondary" size="sm" onClick={cancel}>
           Cancel
         </Button>
@@ -212,7 +212,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
             placeholder="e.g. 5"
           />
           {errors.vialMg && (
-            <p role="alert" className="text-xs text-danger">{errors.vialMg}</p>
+            <p role="alert" className="text-xs text-danger-text">{errors.vialMg}</p>
           )}
 
           <ChipGroup
@@ -238,7 +238,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
                 placeholder="e.g. 2"
               />
               {errors.bacMl && (
-                <p role="alert" className="text-xs text-danger">{errors.bacMl}</p>
+                <p role="alert" className="text-xs text-danger-text">{errors.bacMl}</p>
               )}
             </>
           )}
@@ -265,7 +265,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
               />
             </div>
             {errors.targetDose && (
-              <p role="alert" className="mt-1 text-xs text-danger">{errors.targetDose}</p>
+              <p role="alert" className="mt-1 text-xs text-danger-text">{errors.targetDose}</p>
             )}
           </div>
 
@@ -304,7 +304,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
             placeholder="Optional"
           />
           {errors.durationWeeks && (
-            <p role="alert" className="text-xs text-danger">{errors.durationWeeks}</p>
+            <p role="alert" className="text-xs text-danger-text">{errors.durationWeeks}</p>
           )}
 
           <Field
@@ -322,7 +322,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
         {engineErrors.length > 0 && (
           <ul role="alert" className="mt-3 space-y-1 rounded-[10px] border border-danger/25 bg-danger/8 p-3.5">
             {engineErrors.map((e) => (
-              <li key={e} className="text-[13px] leading-5 text-danger">{e}</li>
+              <li key={e} className="text-[13px] leading-5 text-danger-text">{e}</li>
             ))}
           </ul>
         )}
@@ -330,7 +330,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
         <ResultsPanel result={result} peptideName={peptide?.name} />
 
         {submitError && (
-          <p role="alert" className="mt-3 text-[13px] text-danger">{submitError}</p>
+          <p role="alert" className="mt-3 text-[13px] text-danger-text">{submitError}</p>
         )}
 
         <div className="mt-4">

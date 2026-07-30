@@ -86,7 +86,7 @@ function LogList() {
               type="button"
               onClick={() => setConfirmId(log.id)}
               aria-label={`Delete ${log.peptide_name} entry`}
-              className="tap flex shrink-0 items-center justify-center rounded-[8px] text-tx3-body hover:text-danger"
+              className="tap flex shrink-0 items-center justify-center rounded-[8px] text-tx3-body hover:text-danger-text"
             >
               <Trash2 size={14} aria-hidden="true" />
             </button>
@@ -179,7 +179,7 @@ function LogForm() {
       />
 
       {error && (
-        <p role="alert" className="text-[13px] text-danger">
+        <p role="alert" className="text-[13px] text-danger-text">
           {error}
         </p>
       )}
@@ -195,7 +195,6 @@ function LogForm() {
 export default function Tracker() {
   return (
     <div className="mx-auto max-w-[760px]">
-      <h1 className="mb-1 text-2xl font-bold text-tx">Cycle tracker</h1>
       <p className="mb-5 text-sm text-tx3-body">
         Log each dose and review your history.
       </p>

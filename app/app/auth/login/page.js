@@ -93,7 +93,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <p role="alert" className="mb-3.5 text-[13px] text-danger">
+          <p role="alert" className="mb-3.5 text-[13px] text-danger-text">
             {error}
           </p>
         )}

@@ -89,10 +89,10 @@ export default function Home() {
     <div className="mx-auto max-w-[760px]">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[22px] font-extrabold text-tx">
+          <h2 className="text-[22px] font-extrabold text-tx">
             {greeting()}
             {firstName ? `, ${firstName}` : ''}
-          </h1>
+          </h2>
           <p className="text-[13px] text-tx3-body">
             {user ? "Here's your protocol overview" : 'Peptide research tools'}
           </p>
@@ -112,7 +112,7 @@ export default function Home() {
           {stats.isError ? (
             // Native has no error branch here, so a failure renders three
             // "—" cards indistinguishable from "you have zero protocols".
-            <p className="mb-6 rounded-[10px] border border-danger/25 bg-danger/8 p-3 text-[13px] text-danger">
+            <p className="mb-6 rounded-[10px] border border-danger/25 bg-danger/8 p-3 text-[13px] text-danger-text">
               Could not load your stats.
             </p>
           ) : (

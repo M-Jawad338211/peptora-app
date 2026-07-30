@@ -36,7 +36,7 @@ export default function PeptideDetail({ peptide: p }) {
 
       {/* Header */}
       <header className="card mb-2.5 p-4">
-        <h1 className="text-2xl font-extrabold text-tx">{p.name}</h1>
+        <h2 className="text-2xl font-extrabold text-tx">{p.name}</h2>
         {p.aliases?.length > 0 && (
           <p className="mt-1 text-[13px] text-tx3-body">
             {p.aliases.join(' · ')}

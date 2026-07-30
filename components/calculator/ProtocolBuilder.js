@@ -270,7 +270,7 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
           className="mt-3 space-y-1 rounded-[10px] border border-danger/25 bg-danger/8 p-3.5"
         >
           {errors.map((e) => (
-            <li key={e} className="text-[13px] leading-5 text-danger">
+            <li key={e} className="text-[13px] leading-5 text-danger-text">
               {e}
             </li>
           ))}

@@ -68,7 +68,7 @@ export default function DoseLogForm({ protocol, onSubmit, pending, error }) {
       />
 
       {error && (
-        <p role="alert" className="mb-2 text-[13px] text-danger">
+        <p role="alert" className="mb-2 text-[13px] text-danger-text">
           {error}
         </p>
       )}

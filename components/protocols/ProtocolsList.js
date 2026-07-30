@@ -64,7 +64,9 @@ export default function ProtocolsList() {
   return (
     <div className="mx-auto max-w-[760px]">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-extrabold text-tx">Protocols</h1>
+        <p className="text-sm text-tx3-body">
+          Save regimens and log every dose.
+        </p>
         <Link
           href="/app/protocols/new"
           className="tap inline-flex items-center gap-1.5 rounded-[20px] bg-teal px-4 text-[13px] font-bold text-on-teal no-underline"

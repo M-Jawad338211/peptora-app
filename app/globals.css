@@ -37,11 +37,17 @@
 
   /* Semantic */
   --color-danger: #ff4757;
+  /* danger is 4.17:1 on surface — large text and non-text (borders, icons)
+     only. Error messages and other body-size copy must use danger-text. */
+  --color-danger-text: #ff6b7a;
   --color-danger-soft: #ff6b7a;
   --color-warn: #ffd32a;
   --color-info: #4a9eff;
   --color-gold: #e2b96a;
-  --color-tab-inactive: #4a5568;
+  /* Native's #4a5568 is 1.85:1 on the tab bar — its labels are effectively
+     unreadable. Lightened to clear AA for 11px text while staying clearly
+     dimmer than the teal active state. */
+  --color-tab-inactive: #8695a8;
 
   /* Hairlines */
   --color-hairline: rgba(255, 255, 255, 0.08);

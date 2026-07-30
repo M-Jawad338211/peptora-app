@@ -149,7 +149,7 @@ export default function ProtocolDetail({ id }) {
 
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[22px] font-extrabold text-tx">{title}</h1>
+          <h2 className="text-[22px] font-extrabold text-tx">{title}</h2>
           {p.peptide_name && p.label && (
             <p className="text-[13px] text-tx3-body">{p.peptide_name}</p>
           )}
@@ -197,7 +197,7 @@ export default function ProtocolDetail({ id }) {
       </div>
 
       {setStatus.isError && (
-        <p role="alert" className="mb-3 text-[13px] text-danger">
+        <p role="alert" className="mb-3 text-[13px] text-danger-text">
           {setStatus.error.message}
         </p>
       )}
@@ -276,7 +276,7 @@ export default function ProtocolDetail({ id }) {
                   type="button"
                   onClick={() => setConfirmLog(log.id)}
                   aria-label={`Delete dose logged ${formatDateTime(log.taken_at)}`}
-                  className="tap flex shrink-0 items-center justify-center rounded-[8px] text-tx3-body hover:text-danger"
+                  className="tap flex shrink-0 items-center justify-center rounded-[8px] text-tx3-body hover:text-danger-text"
                 >
                   <Trash2 size={14} aria-hidden="true" />
                 </button>
