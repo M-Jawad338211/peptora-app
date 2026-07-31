@@ -1,39 +1,149 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --navy:  #1a2535;
-  --navy2: #1f2d3f;
-  --sl:    #2a3d54;
-  --sl2:   #30455e;
-  --tx:    #edf2f8;
-  --tx2:   #9db4cc;
-  --tx3:   #5e7a96;
-  --teal:  #00d68f;
-  --gold:  #e2b96a;
-  --red:   #ef4444;
-  --green: #22c55e;
+/* ═══════════════════════════════════════════════════════════════════════
+   Design tokens.
+
+   Values are reconciled to the native app (peptora-android/src/lib/theme.js)
+   so the web and native UIs are one visual system. Where the old web palette
+   disagreed, native wins:
+     --tx      #edf2f8 -> #e8edf5
+     --tx2     #9db4cc -> #8899aa
+     --tx3     #5e7a96 -> #6b7788
+     surface   #1f2d3f -> #1e2d42
+     danger    #ef4444 -> #ff4757
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Surfaces */
+  --color-navy: #1a2535;
+  --color-surface: #1e2d42;
+  --color-inset: #2a3d54;
+
+  /* Text.
+     tx3 is ~3.3:1 on surface and FAILS WCAG AA. Use `text-tx3` only for
+     decorative sub-12px chrome (tick labels, timestamps that duplicate
+     visible info). Anything carrying a sentence — disclaimers, empty
+     states, hints, help text — must use `text-tx3-body` (~5.6:1). */
+  --color-tx: #e8edf5;
+  --color-tx2: #8899aa;
+  --color-tx3: #6b7788;
+  --color-tx3-body: #93a1b3;
+
+  /* Brand */
+  --color-teal: #00d68f;
+  --color-teal-dark: #00b377;
+  --color-teal-lite: #00f0a0;
+  --color-on-teal: #021a0e;
+
+  /* Semantic */
+  --color-danger: #ff4757;
+  /* danger is 4.17:1 on surface — large text and non-text (borders, icons)
+     only. Error messages and other body-size copy must use danger-text. */
+  --color-danger-text: #ff6b7a;
+  --color-danger-soft: #ff6b7a;
+  --color-warn: #ffd32a;
+  --color-info: #4a9eff;
+  --color-gold: #e2b96a;
+  /* Native's #4a5568 is 1.85:1 on the tab bar — its labels are effectively
+     unreadable. Lightened to clear AA for 11px text while staying clearly
+     dimmer than the teal active state. */
+  --color-tab-inactive: #8695a8;
+
+  /* Hairlines */
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.14);
+
+  /* Typography. The DM font vars are injected by next/font in layout.js. */
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-display: Georgia, serif;
+
+  /* Geometry */
+  --radius-card: 14px;
+  --spacing-tabbar: 60px;
+  --spacing-sidebar: 240px;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Legacy aliases. The marketing pages style via inline `var(--navy)` etc.;
+   these keep them working while pointing at the reconciled palette. */
+:root {
+  --navy: var(--color-navy);
+  --navy2: var(--color-surface);
+  --sl: var(--color-inset);
+  --tx: var(--color-tx);
+  --tx2: var(--color-tx2);
+  --tx3: var(--color-tx3);
+  --teal: var(--color-teal);
+  --gold: var(--color-gold);
+  --red: var(--color-danger);
+  --green: #22c55e;
+
+  color-scheme: dark;
 }
 
 body {
-  background: var(--navy);
-  color: var(--tx);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--color-navy);
+  color: var(--color-tx);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
 
-/* ── Nav ── */
+/* Visible keyboard focus everywhere. The native app has none; on the web a
+   focus ring is the only way to navigate without a pointer. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Repeated component recipes ─────────────────────────────────────── */
+
+@utility card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+}
+
+/* Minimum comfortable touch target. Native ships several 26-35px controls;
+   this is applied to every interactive element that would otherwise be small. */
+@utility tap {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* The uppercase eyebrow label. Native renders this at four different sizes
+   (11/12/13/14px) for the same role — standardised here at 12px. */
+@utility eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-tx2);
+}
+
+/* ── Marketing nav ──────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
   .nav-desktop-links,
@@ -45,7 +155,13 @@ body {
   }
 }
 
-/* ── Privacy Policy ── */
+.nav-desktop-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Privacy Policy (marketing) ─────────────────────────────────────── */
 
 .privacy-page {
   max-width: 980px;
@@ -61,14 +177,13 @@ body {
   margin-bottom: 28px;
 }
 
-/* Eyebrow badge — matches homepage pill */
 .privacy-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   color: var(--teal);
-  background: rgba(0,214,143,0.08);
-  border: 1px solid rgba(0,214,143,0.22);
+  background: rgba(0, 214, 143, 0.08);
+  border: 1px solid rgba(0, 214, 143, 0.22);
   border-radius: 999px;
   padding: 6px 14px 6px 10px;
   margin-bottom: 22px;
@@ -88,7 +203,7 @@ body {
 
 .privacy-hero h1 {
   color: var(--tx);
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 6vw, 62px);
   font-weight: 400;
   line-height: 1.05;
@@ -111,10 +226,9 @@ body {
   font-size: 11.5px;
 }
 
-/* Summary card */
 .privacy-summary {
   background: var(--navy2);
-  border: 1px solid rgba(255,255,255,0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 16px;
   padding: 6px 20px;
   position: sticky;
@@ -123,7 +237,7 @@ body {
 
 .privacy-summary-item {
   padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .privacy-summary-item:last-child {
@@ -156,10 +270,9 @@ body {
   line-height: 1.65;
 }
 
-/* Disclaimer notice */
 .privacy-notice {
-  background: rgba(226,185,106,0.07);
-  border: 1px solid rgba(226,185,106,0.22);
+  background: rgba(226, 185, 106, 0.07);
+  border: 1px solid rgba(226, 185, 106, 0.22);
   border-radius: 14px;
   padding: 16px 20px;
   margin-bottom: 24px;
@@ -184,10 +297,9 @@ body {
   line-height: 1.7;
 }
 
-/* Prose */
 .privacy-prose {
   background: var(--navy2);
-  border: 1px solid rgba(255,255,255,0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 16px;
   padding: 40px;
 }
@@ -195,7 +307,7 @@ body {
 .privacy-prose section + section {
   margin-top: 36px;
   padding-top: 32px;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .privacy-prose h2 {
@@ -230,7 +342,6 @@ body {
   margin-bottom: 0;
 }
 
-/* Footer nav */
 .privacy-footer-nav {
   display: flex;
   justify-content: center;
@@ -245,18 +356,18 @@ body {
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 10px 20px;
   transition: border-color 0.15s;
 }
 
 .privacy-footer-nav a:first-child {
-  color: #021a0e;
+  color: var(--color-on-teal);
   background: linear-gradient(135deg, #00d68f, #00f0a0);
   border-color: transparent;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0,214,143,0.22);
+  box-shadow: 0 4px 14px rgba(0, 214, 143, 0.22);
 }
 
 @media (max-width: 760px) {

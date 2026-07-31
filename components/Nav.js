@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+import { useSession, useLogout } from "@/lib/auth/session";
 
 function NavLogo() {
   return (
@@ -22,7 +22,9 @@ function NavLogo() {
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, isPending: loading } = useSession();
+  // Marketing nav returns to the homepage rather than the login screen.
+  const logout = useLogout("/");
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
@@ -33,18 +35,16 @@ export default function Nav() {
   }, [menuOpen]);
 
   const links = [
-    { href: "/calculator", label: "Calculator", icon: "⚗️" },
-    { href: "/encyclopedia", label: "Encyclopedia", icon: "📖" },
-    { href: "/stack-checker", label: "Stack Checker", icon: "🔬" },
-    { href: "/cycle-tracker", label: "Cycle Tracker", icon: "📊" },
-    { href: "/vendors", label: "Vendors", icon: "🛡️" },
-    { href: "/regulations", label: "Regulations", icon: "⚖️" },
+    { href: "/app/calculator", label: "Calculator", icon: "⚗️" },
+    { href: "/app/encyclopedia", label: "Encyclopedia", icon: "📖" },
+    { href: "/app/protocols", label: "Protocols", icon: "🧪" },
+    { href: "/app/tracker", label: "Tracker", icon: "📊" },
+    { href: "/support", label: "Support", icon: "💬" },
   ];
 
   const handleLogout = async () => {
     setMenuOpen(false);
     await logout();
-    router.push("/");
   };
 
   return (
@@ -80,7 +80,7 @@ export default function Nav() {
           <div className="nav-desktop-auth" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             {!loading && user ? (
               <>
-                <Link href="/dashboard" style={{
+                <Link href="/app/profile" style={{
                   fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--tx2)",
                   textDecoration: "none", padding: "7px 16px",
                   border: "1px solid rgba(255,255,255,0.14)", borderRadius: "8px",
@@ -96,14 +96,14 @@ export default function Nav() {
               </>
             ) : !loading ? (
               <>
-                <Link href="/auth/login" style={{
+                <Link href="/app/auth/login" style={{
                   fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--tx2)",
                   textDecoration: "none", padding: "7px 16px",
                   border: "1px solid rgba(255,255,255,0.14)", borderRadius: "8px",
                 }}>
                   Log in
                 </Link>
-                <Link href="/auth/signup" style={{
+                <Link href="/app/auth/signup" style={{
                   fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600,
                   color: "#021a0e", background: "linear-gradient(135deg, #00d68f, #00f0a0)",
                   textDecoration: "none", padding: "8px 18px", borderRadius: "8px",
@@ -216,7 +216,7 @@ export default function Nav() {
         }}>
           {!loading && user ? (
             <>
-              <Link href="/dashboard" style={{
+              <Link href="/app/profile" style={{
                 display: "flex", alignItems: "center", gap: "10px",
                 textDecoration: "none", padding: "11px 12px", borderRadius: "10px",
                 background: "rgba(255,255,255,0.04)",
@@ -250,7 +250,7 @@ export default function Nav() {
             </>
           ) : !loading ? (
             <>
-              <Link href="/auth/login" style={{
+              <Link href="/app/auth/login" style={{
                 display: "block", textAlign: "center", padding: "12px",
                 borderRadius: "10px", border: "1px solid rgba(255,255,255,0.12)",
                 fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 500,
@@ -258,7 +258,7 @@ export default function Nav() {
               }}>
                 Log in
               </Link>
-              <Link href="/auth/signup" style={{
+              <Link href="/app/auth/signup" style={{
                 display: "block", textAlign: "center", padding: "12px",
                 borderRadius: "10px",
                 background: "linear-gradient(135deg, #00d68f, #00f0a0)",
