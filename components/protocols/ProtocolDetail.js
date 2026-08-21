@@ -107,7 +107,7 @@ export default function ProtocolDetail({ id }) {
     )
   }
 
-  const title = p.label || p.peptide_name || 'Untitled protocol'
+  const title = p.label || p.peptide_name || p.stack_name || 'Untitled protocol'
   const day = p.start_date != null ? daysSince(p.start_date) : null
 
   // Recompute the calculation from the stored configuration.
@@ -124,7 +124,7 @@ export default function ProtocolDetail({ id }) {
             ? {
                 ok: true,
                 ...build_result('forward', r, {
-                  peptide_name: p.peptide_name,
+                  peptide_name: p.peptide_name || p.stack_name,
                   unit: p.unit,
                   target_dose: formatDoseFromMcg(p.target_dose_mcg, p.unit).split(' ')[0],
                   syringe_type: p.syringe_type || 'U-100',
@@ -150,8 +150,8 @@ export default function ProtocolDetail({ id }) {
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-[22px] font-extrabold text-tx">{title}</h2>
-          {p.peptide_name && p.label && (
-            <p className="text-[13px] text-tx3-body">{p.peptide_name}</p>
+          {(p.peptide_name || p.stack_name) && p.label && (
+            <p className="text-[13px] text-tx3-body">{p.peptide_name || p.stack_name}</p>
           )}
         </div>
         <button

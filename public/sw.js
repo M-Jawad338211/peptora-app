@@ -20,9 +20,9 @@ const OFFLINE_URL = '/app/offline'
 const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png']
 
 const API_PREFIX = '/api/'
-// The only API data safe to cache: the public peptide reference, which is
-// identical for every user and requires no credentials.
-const CACHEABLE_API = /^\/api\/peptides(\/|$)/
+// The only API data safe to cache: the public peptide/stack reference, which
+// is identical for every user and requires no credentials.
+const CACHEABLE_API = /^\/api\/(peptides|stacks)(\/|$)/
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

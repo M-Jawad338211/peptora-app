@@ -36,8 +36,8 @@ export default function ProtocolCard({ protocol: p }) {
   }
   const StatusIcon = status.Icon
 
-  const title = p.label || p.peptide_name || 'Untitled protocol'
-  const subtitle = p.peptide_name && p.label ? p.peptide_name : null
+  const title = p.label || p.peptide_name || p.stack_name || 'Untitled protocol'
+  const subtitle = (p.peptide_name || p.stack_name) && p.label ? (p.peptide_name || p.stack_name) : null
 
   return (
     <Link

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { protocols as protocolsApi, peptides as peptidesApi } from '@/lib/api'
+import { protocols as protocolsApi, peptides as peptidesApi, stacks as stacksApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { calc_forward, calc_inverse, to_mcg, build_result } from '@/lib/reconstitution'
 import { protocolDefaultsFromPeptide } from '@/lib/peptideDefaults'
@@ -11,6 +11,7 @@ import { useDebounce } from '@/lib/hooks/useDebounce'
 import Button from '@/components/ui/Button'
 import Field from '@/components/ui/Field'
 import PeptideSelect from '@/components/calculator/PeptideSelect'
+import StackSelect from '@/components/protocols/StackSelect'
 import ResultsPanel from '@/components/calculator/ResultsPanel'
 import { ResearchBanner } from '@/components/calculator/Callouts'
 import { NumberInput, ChipGroup } from '@/components/calculator/inputs'
@@ -28,11 +29,13 @@ const FREQUENCIES = [
 ]
 const SYRINGE_TYPES = ['U-100', 'U-50', 'U-40']
 
-export default function ProtocolForm({ initialPeptideId = null }) {
+export default function ProtocolForm({ initialPeptideId = null, initialStackId = null }) {
   const router = useRouter()
   const queryClient = useQueryClient()
 
   const [peptideId, setPeptideId] = useState(initialPeptideId)
+  const [stackId, setStackId] = useState(initialStackId)
+  const [targetType, setTargetType] = useState(initialStackId ? 'stack' : 'peptide')
   const [labelInput, setLabelInput] = useState('')
   const [labelTouched, setLabelTouched] = useState(false)
   const [vialMg, setVialMg] = useState('')
@@ -58,6 +61,15 @@ export default function ProtocolForm({ initialPeptideId = null }) {
     staleTime: 10 * 60_000,
   })
 
+  const { data: stack } = useQuery({
+    queryKey: qk.stack(stackId),
+    queryFn: () => stacksApi.get(stackId),
+    enabled: !!stackId,
+    staleTime: 10 * 60_000,
+  })
+
+  // No single "reference dose" exists for a whole blend — nothing to prefill
+  // the unit/range from — so defaults only ever come from a selected peptide.
   const defaults = useMemo(
     () => (peptide ? protocolDefaultsFromPeptide(peptide) : null),
     [peptide]
@@ -69,7 +81,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
   // user edits the field, after which their value wins. Native reapplies the
   // default on every peptide load, silently turning a typed "5 mg" into
   // "5 mcg".
-  const label = labelTouched ? labelInput : (peptide?.name ?? '')
+  const label = labelTouched ? labelInput : (peptide?.name ?? stack?.name ?? '')
   const unit = unitTouched ? unitInput : (defaults?.dose_unit ?? 'mcg')
 
   const dVial = useDebounce(vialMg, 250)
@@ -91,7 +103,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
     }
 
     const opts = {
-      peptide_name: peptide?.name,
+      peptide_name: peptide?.name ?? stack?.name,
       unit,
       target_dose: rawDose,
       syringe_type: syringeType,
@@ -119,10 +131,10 @@ export default function ProtocolForm({ initialPeptideId = null }) {
       doseMcg: mcg,
       waterMl: r.recommended_water_ml,
     }
-  }, [dVial, dBac, dDose, dPreferred, unit, syringeType, reconstituted, iuPerMg, peptide, defaults])
+  }, [dVial, dBac, dDose, dPreferred, unit, syringeType, reconstituted, iuPerMg, peptide, stack, defaults])
 
   const dirty =
-    !!peptideId || !!vialMg || !!targetDose || !!bacMl || !!notes || !!frequency
+    !!peptideId || !!stackId || !!vialMg || !!targetDose || !!bacMl || !!notes || !!frequency
 
   const save = useMutation({
     mutationFn: (body) => protocolsApi.create(body),
@@ -155,6 +167,8 @@ export default function ProtocolForm({ initialPeptideId = null }) {
     save.mutate({
       peptide_id: peptideId,
       peptide_name: peptide?.name ?? null,
+      stack_id: stackId,
+      stack_name: stack?.name ?? null,
       label: label.trim() || null,
       status: 'active',
       vial_mg: vial,
@@ -188,7 +202,25 @@ export default function ProtocolForm({ initialPeptideId = null }) {
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="card space-y-4 p-4">
-          <PeptideSelect value={peptideId} onChange={setPeptideId} />
+          <ChipGroup
+            label="Target"
+            value={targetType}
+            onChange={(v) => {
+              setTargetType(v)
+              if (v === 'peptide') setStackId(null)
+              else setPeptideId(null)
+            }}
+            options={[
+              { value: 'peptide', label: 'Peptide' },
+              { value: 'stack', label: 'Blend' },
+            ]}
+          />
+
+          {targetType === 'stack' ? (
+            <StackSelect value={stackId} onChange={setStackId} />
+          ) : (
+            <PeptideSelect value={peptideId} onChange={setPeptideId} />
+          )}
 
           <Field
             label="Protocol name"
@@ -327,7 +359,7 @@ export default function ProtocolForm({ initialPeptideId = null }) {
           </ul>
         )}
 
-        <ResultsPanel result={result} peptideName={peptide?.name} />
+        <ResultsPanel result={result} peptideName={peptide?.name ?? stack?.name} />
 
         {submitError && (
           <p role="alert" className="mt-3 text-[13px] text-danger-text">{submitError}</p>
