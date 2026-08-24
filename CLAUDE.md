@@ -72,10 +72,31 @@ Icons: `node scripts/gen-icons.mjs` (run manually, output committed). Maskable
 variants are re-composited at 80% on a background sampled from the artwork —
 a plain resize is clipped by Android's circular mask.
 
+## Plans and gating
+One plan, two billing periods: $5/month or $49/year, paid in crypto via
+NOWPayments. New accounts get a 14-day trial at email verification.
+
+Crypto cannot auto-charge, so access is a **prepaid window**, not a
+subscription status — `user.access.has_access` comes from the API and is the
+only thing to gate on. Never recompute it from the dates client-side; the two
+clocks disagree and a browser running fast would paywall someone who just paid.
+Nothing renews on its own, which makes `TrialBanner` load-bearing rather than
+decorative: ignoring it means being locked out, not being charged.
+
+- `PlanGate` wraps `AuthGate` — signed out and lapsed are different problems
+  with different fixes. Protocols and Tracker use it.
+- The calculator is the exception. Its engine is client-side JS, so the server
+  cannot refuse a calculation; `CalculatorGate` enforces at the UI layer while
+  `/calculator/record-use` and `/history` return 402 server-side. Anonymous
+  visitors keep 5 free calculations as top-of-funnel.
+- Encyclopedia and stacks stay free.
+- `CheckoutReturn` polls the session after `?checkout=success`: crediting
+  happens on a server-to-server IPN with no ordering against the redirect, and
+  `useSession` caches for 5 minutes.
+
 ## Not in this app
-No AI features, no payments, no pro gating — everything is free. The
-`/ai-assistant`, `/stack-checker`, `/protocol-finder`, `/vendors`,
-`/regulations` and `/pricing` routes were removed and redirect to `/`.
+No AI features. The `/ai-assistant`, `/stack-checker`, `/protocol-finder`,
+`/vendors` and `/regulations` routes were removed and redirect to `/`.
 
 ## Local dev
 ```bash

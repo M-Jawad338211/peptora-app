@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Mail, ShieldCheck, Star, LogOut } from 'lucide-react'
+import { Mail, ShieldCheck, Star, LogOut, CalendarClock } from 'lucide-react'
 import { protocols as protocolsApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { useSession, useLogout } from '@/lib/auth/session'
@@ -25,9 +25,17 @@ function ProfileContent({ user }) {
   const [confirmLogout, setConfirmLogout] = useState(false)
   const logout = useLogout()
 
+  const access = user.access
+  const hasAccess = !!access?.has_access
+
+  // /protocols/stats/summary is behind the paywall now. Firing it for a
+  // lapsed user only produces a 402 and a retry storm; the counters render
+  // as zero either way.
   const stats = useQuery({
     queryKey: qk.protocolStats,
     queryFn: protocolsApi.stats,
+    enabled: hasAccess,
+    retry: false,
   })
 
   return (
@@ -72,7 +80,42 @@ function ProfileContent({ user }) {
           value={user.email_verified ? 'Yes' : 'No'}
           valueClass={user.email_verified ? 'text-teal' : 'text-warn'}
         />
-        <InfoRow icon={Star} label="Plan" value={user.plan === 'pro' ? 'Pro' : 'Free'} />
+        <InfoRow
+          icon={Star}
+          label="Plan"
+          value={hasAccess ? (access.is_trial ? 'Trial' : 'Pro') : 'Free'}
+          valueClass={hasAccess ? 'text-teal' : 'text-tx2'}
+        />
+        {hasAccess && access.days_remaining != null && (
+          <InfoRow
+            icon={CalendarClock}
+            label={access.is_trial ? 'Trial ends in' : 'Access ends in'}
+            value={`${access.days_remaining} day${access.days_remaining === 1 ? '' : 's'}`}
+            valueClass={access.days_remaining <= 3 ? 'text-warn' : 'text-tx'}
+          />
+        )}
+      </section>
+
+      <section className="card mb-2.5 p-4">
+        <p className="mb-1.5 text-[13px] font-semibold text-tx">
+          {hasAccess
+            ? access.is_trial
+              ? 'You are on the free trial'
+              : 'Your subscription is active'
+            : 'No active subscription'}
+        </p>
+        <p className="mb-3.5 text-[12px] leading-5 text-tx3-body">
+          {hasAccess
+            ? 'Crypto payments cannot be charged automatically, so nothing renews on its own. We will email you a few days before your access ends.'
+            : 'Subscribe to unlock the dose calculator, protocols and the cycle tracker.'}
+        </p>
+        <Button
+          href="/app/pricing"
+          variant={hasAccess ? 'secondary' : 'primary'}
+          fullWidth
+        >
+          {hasAccess ? 'Extend access' : 'View plans'}
+        </Button>
       </section>
 
       <p className="card mb-4 p-4 text-[12px] leading-5 text-tx3-body italic">

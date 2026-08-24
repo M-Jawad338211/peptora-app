@@ -1,4 +1,5 @@
 import ProtocolBuilder from '@/components/calculator/ProtocolBuilder'
+import CalculatorGate from '@/components/calculator/CalculatorGate'
 
 export const metadata = {
   title: 'Dose Calculator · Peptora',
@@ -9,5 +10,9 @@ export const metadata = {
 export default async function CalculatorPage({ searchParams }) {
   // Lets the encyclopedia deep-link straight into a peptide's calculation.
   const { peptide } = await searchParams
-  return <ProtocolBuilder initialPeptideId={peptide ?? null} />
+  return (
+    <CalculatorGate>
+      <ProtocolBuilder initialPeptideId={peptide ?? null} />
+    </CalculatorGate>
+  )
 }

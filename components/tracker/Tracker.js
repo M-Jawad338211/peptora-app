@@ -6,7 +6,7 @@ import { ChartLine, Plus, Trash2 } from 'lucide-react'
 import { tracker as trackerApi, peptides as peptidesApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { formatDateTime } from '@/lib/format'
-import AuthGate from '@/components/auth/AuthGate'
+import PlanGate from '@/components/auth/PlanGate'
 import Button from '@/components/ui/Button'
 import Field from '@/components/ui/Field'
 import EmptyState from '@/components/ui/EmptyState'
@@ -199,13 +199,15 @@ export default function Tracker() {
         Log each dose and review your history.
       </p>
 
-      <AuthGate
-        title="Log in to use the Cycle Tracker"
-        subtitle="Your dose history is saved to your account."
+      <PlanGate
+        authTitle="Log in to use the Cycle Tracker"
+        authSubtitle="Your dose history is saved to your account."
+        title="Subscribe to use the Cycle Tracker"
+        subtitle="Your logged doses are safe — subscribe to add to them and see your history."
       >
         <LogForm />
         <LogList />
-      </AuthGate>
+      </PlanGate>
     </div>
   )
 }

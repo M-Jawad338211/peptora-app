@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FlaskConical, Plus } from 'lucide-react'
 import { protocols as protocolsApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
-import AuthGate from '@/components/auth/AuthGate'
+import PlanGate from '@/components/auth/PlanGate'
 import ProtocolCard from './ProtocolCard'
 import EmptyState from '@/components/ui/EmptyState'
 import ErrorState from '@/components/ui/ErrorState'
@@ -76,12 +76,14 @@ export default function ProtocolsList() {
         </Link>
       </div>
 
-      <AuthGate
-        title="Log in to use Protocols"
-        subtitle="Protocols save your regimen and let you log every dose."
+      <PlanGate
+        authTitle="Log in to use Protocols"
+        authSubtitle="Protocols save your regimen and let you log every dose."
+        title="Subscribe to use Protocols"
+        subtitle="Your saved protocols are still here — subscribe to open and edit them."
       >
         <List />
-      </AuthGate>
+      </PlanGate>
     </div>
   )
 }
