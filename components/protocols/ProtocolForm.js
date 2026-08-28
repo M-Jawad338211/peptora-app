@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { protocols as protocolsApi, peptides as peptidesApi, stacks as stacksApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
-import { calc_forward, calc_inverse, to_mcg, build_result } from '@/lib/reconstitution'
+import { calc_forward, to_mcg, build_result, dilution_options } from '@/lib/reconstitution'
 import { protocolDefaultsFromPeptide } from '@/lib/peptideDefaults'
 import { useDebounce } from '@/lib/hooks/useDebounce'
 import Button from '@/components/ui/Button'
@@ -13,6 +13,7 @@ import Field from '@/components/ui/Field'
 import PeptideSelect from '@/components/calculator/PeptideSelect'
 import StackSelect from '@/components/protocols/StackSelect'
 import ResultsPanel from '@/components/calculator/ResultsPanel'
+import DilutionPicker from '@/components/calculator/DilutionPicker'
 import { ResearchBanner } from '@/components/calculator/Callouts'
 import { NumberInput, ChipGroup } from '@/components/calculator/inputs'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
@@ -45,7 +46,8 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
   const [syringeType, setSyringeType] = useState('U-100')
   const [bacMl, setBacMl] = useState('')
   const [targetDose, setTargetDose] = useState('')
-  const [preferredUnits, setPreferredUnits] = useState('20')
+  // The water volume the user picked, or null for "whatever you recommend".
+  const [dilutionMl, setDilutionMl] = useState(null)
   const [frequency, setFrequency] = useState('')
   const [durationWeeks, setDurationWeeks] = useState('')
   const [notes, setNotes] = useState('')
@@ -87,19 +89,18 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
   const dVial = useDebounce(vialMg, 250)
   const dBac = useDebounce(bacMl, 250)
   const dDose = useDebounce(targetDose, 250)
-  const dPreferred = useDebounce(preferredUnits, 250)
 
-  const { result, engineErrors, doseMcg, waterMl } = useMemo(() => {
+  const { result, engineErrors, doseMcg, waterMl, dilution } = useMemo(() => {
     const vial = parseFloat(dVial)
     const rawDose = parseFloat(dDose)
     if (!vial || vial <= 0 || !rawDose || rawDose <= 0) {
-      return { result: null, engineErrors: [], doseMcg: null, waterMl: null }
+      return { result: null, engineErrors: [], doseMcg: null, waterMl: null, dilution: null }
     }
     let mcg
     try {
       mcg = to_mcg(rawDose, unit, iuPerMg)
     } catch (e) {
-      return { result: null, engineErrors: [e.message], doseMcg: null, waterMl: null }
+      return { result: null, engineErrors: [e.message], doseMcg: null, waterMl: null, dilution: null }
     }
 
     const opts = {
@@ -112,26 +113,43 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
 
     if (reconstituted) {
       const bac = parseFloat(dBac)
-      if (!bac || bac <= 0) return { result: null, engineErrors: [], doseMcg: mcg, waterMl: null }
+      if (!bac || bac <= 0) return { result: null, engineErrors: [], doseMcg: mcg, waterMl: null, dilution: null }
       const r = calc_forward(vial, bac, mcg, syringeType)
-      if (!r.ok) return { result: null, engineErrors: r.errors, doseMcg: mcg, waterMl: bac }
+      if (!r.ok) return { result: null, engineErrors: r.errors, doseMcg: mcg, waterMl: bac, dilution: null }
       return {
         result: { ok: true, ...build_result('forward', r, opts) },
         engineErrors: [],
         doseMcg: mcg,
         waterMl: bac,
+        dilution: null,
       }
     }
 
-    const r = calc_inverse(vial, mcg, syringeType, parseFloat(dPreferred) || 20)
-    if (!r.ok) return { result: null, engineErrors: r.errors, doseMcg: mcg, waterMl: null }
+    const d = dilution_options(vial, mcg, syringeType)
+    if (!d.ok) return { result: null, engineErrors: d.errors, doseMcg: mcg, waterMl: null, dilution: null }
+
+    // Derived rather than reset via an effect: a picked volume holds only while
+    // it is still on offer, and silently falls back to the recommendation once
+    // a new dose or syringe pushes it off the list.
+    const water = d.options.some((o) => o.water_ml === dilutionMl)
+      ? dilutionMl
+      : d.recommended_water_ml
+
+    // Computed forward from the chosen volume, so the units shown on the card
+    // are exactly the units in the result.
+    const r = calc_forward(vial, water, mcg, syringeType)
+    if (!r.ok) return { result: null, engineErrors: r.errors, doseMcg: mcg, waterMl: water, dilution: d }
     return {
-      result: { ok: true, ...build_result('inverse', r, opts) },
+      result: {
+        ok: true,
+        ...build_result('inverse', { ...r, recommended_water_ml: water, alternatives: d.options }, opts),
+      },
       engineErrors: [],
       doseMcg: mcg,
-      waterMl: r.recommended_water_ml,
+      waterMl: water,
+      dilution: d,
     }
-  }, [dVial, dBac, dDose, dPreferred, unit, syringeType, reconstituted, iuPerMg, peptide, stack, defaults])
+  }, [dVial, dBac, dDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide, stack, defaults])
 
   const dirty =
     !!peptideId || !!stackId || !!vialMg || !!targetDose || !!bacMl || !!notes || !!frequency
@@ -302,11 +320,12 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
           </div>
 
           {!reconstituted && (
-            <NumberInput
-              label="Preferred draw size"
-              suffix="units"
-              value={preferredUnits}
-              onChange={(e) => setPreferredUnits(e.target.value)}
+            <DilutionPicker
+              dilution={dilution}
+              value={waterMl}
+              onChange={setDilutionMl}
+              syringeType={syringeType}
+              doseLabel={targetDose ? `${targetDose} ${unit}` : null}
             />
           )}
 
