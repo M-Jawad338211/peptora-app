@@ -10,7 +10,7 @@
  * Bump VERSION on any deploy that changes the shell; `activate` purges every
  * cache that does not carry the current version.
  */
-const VERSION = 'v1'
+const VERSION = 'v2'
 const SHELL_CACHE = `peptora-shell-${VERSION}`
 const STATIC_CACHE = `peptora-static-${VERSION}`
 const API_CACHE = `peptora-api-${VERSION}`

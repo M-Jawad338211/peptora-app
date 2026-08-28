@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { peptides as peptidesApi, calculator } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
-import { calc_forward, calc_inverse, to_mcg, build_result } from '@/lib/reconstitution'
+import { calc_forward, to_mcg, build_result, dilution_options } from '@/lib/reconstitution'
 import { protocolDefaultsFromPeptide } from '@/lib/peptideDefaults'
 import { generateFingerprint } from '@/lib/fingerprint'
 import { useDebounce } from '@/lib/hooks/useDebounce'
@@ -12,6 +12,7 @@ import { useSession } from '@/lib/auth/session'
 import Button from '@/components/ui/Button'
 import PeptideSelect from './PeptideSelect'
 import ResultsPanel from './ResultsPanel'
+import DilutionPicker from './DilutionPicker'
 import { ResearchBanner } from './Callouts'
 import { NumberInput, ChipGroup } from './inputs'
 
@@ -30,7 +31,10 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   const [syringeType, setSyringeType] = useState('U-100')
   const [bacMl, setBacMl] = useState('')
   const [targetDose, setTargetDose] = useState('')
-  const [preferredUnits, setPreferredUnits] = useState('20')
+  // The water volume the user picked, or null for "whatever you recommend".
+  // Kept as a plain choice rather than a typed target so nothing has to be
+  // rounded away behind their back.
+  const [dilutionMl, setDilutionMl] = useState(null)
 
   const [saving, setSaving] = useState(false)
   const [saveState, setSaveState] = useState(null) // {ok, message}
@@ -60,29 +64,28 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   const dVial = useDebounce(vialMg, 250)
   const dBac = useDebounce(bacMl, 250)
   const dDose = useDebounce(targetDose, 250)
-  const dPreferred = useDebounce(preferredUnits, 250)
 
-  const { result, errors, doseMcg, waterMl } = useMemo(() => {
+  const { result, errors, doseMcg, waterMl, dilution } = useMemo(() => {
     const vial = parseFloat(dVial)
     const rawDose = parseFloat(dDose)
     if (!vial || vial <= 0 || !rawDose || rawDose <= 0) {
-      return { result: null, errors: [], doseMcg: null, waterMl: null }
+      return { result: null, errors: [], doseMcg: null, waterMl: null, dilution: null }
     }
 
     let mcg
     try {
       mcg = to_mcg(rawDose, unit, iuPerMg)
     } catch (e) {
-      return { result: null, errors: [e.message], doseMcg: null, waterMl: null }
+      return { result: null, errors: [e.message], doseMcg: null, waterMl: null, dilution: null }
     }
 
     if (reconstituted) {
       const bac = parseFloat(dBac)
       if (!bac || bac <= 0) {
-        return { result: null, errors: [], doseMcg: mcg, waterMl: null }
+        return { result: null, errors: [], doseMcg: mcg, waterMl: null, dilution: null }
       }
       const r = calc_forward(vial, bac, mcg, syringeType)
-      if (!r.ok) return { result: null, errors: r.errors, doseMcg: mcg, waterMl: bac }
+      if (!r.ok) return { result: null, errors: r.errors, doseMcg: mcg, waterMl: bac, dilution: null }
       return {
         // build_result is the single source of the display shape. Native
         // assembles it inline in three places, which have already drifted.
@@ -99,16 +102,29 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
         errors: [],
         doseMcg: mcg,
         waterMl: bac,
+        dilution: null,
       }
     }
 
-    const desired = parseFloat(dPreferred) || 20
-    const r = calc_inverse(vial, mcg, syringeType, desired)
-    if (!r.ok) return { result: null, errors: r.errors, doseMcg: mcg, waterMl: null }
+    const d = dilution_options(vial, mcg, syringeType)
+    if (!d.ok) return { result: null, errors: d.errors, doseMcg: mcg, waterMl: null, dilution: null }
+
+    // Derived rather than reset via an effect: a picked volume holds only while
+    // it is still on offer, and silently falls back to the recommendation once
+    // a new dose or syringe pushes it off the list.
+    const water = d.options.some((o) => o.water_ml === dilutionMl)
+      ? dilutionMl
+      : d.recommended_water_ml
+
+    // Computed forward from the chosen volume, so the units shown on the card
+    // are exactly the units in the result — calc_inverse's snap_to_nice would
+    // reintroduce the rounding this picker exists to remove.
+    const r = calc_forward(vial, water, mcg, syringeType)
+    if (!r.ok) return { result: null, errors: r.errors, doseMcg: mcg, waterMl: water, dilution: d }
     return {
       result: {
         ok: true,
-        ...build_result('inverse', r, {
+        ...build_result('inverse', { ...r, recommended_water_ml: water, alternatives: d.options }, {
           peptide_name: peptide?.name,
           unit,
           target_dose: rawDose,
@@ -118,9 +134,10 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
       },
       errors: [],
       doseMcg: mcg,
-      waterMl: r.recommended_water_ml,
+      waterMl: water,
+      dilution: d,
     }
-  }, [dVial, dBac, dDose, dPreferred, unit, syringeType, reconstituted, iuPerMg, peptide, defaults])
+  }, [dVial, dBac, dDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide, defaults])
 
   const save = async () => {
     if (!result?.ok || saving) return
@@ -238,12 +255,12 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
         </div>
 
         {!reconstituted && (
-          <NumberInput
-            label="Preferred draw size"
-            suffix="units"
-            value={preferredUnits}
-            onChange={(e) => setPreferredUnits(e.target.value)}
-            placeholder="20"
+          <DilutionPicker
+            dilution={dilution}
+            value={waterMl}
+            onChange={setDilutionMl}
+            syringeType={syringeType}
+            doseLabel={targetDose ? `${targetDose} ${unit}` : null}
           />
         )}
 
@@ -255,13 +272,6 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
           value={syringeType}
           onChange={setSyringeType}
         />
-
-        {!reconstituted && (
-          <p className="text-[12px] leading-5 text-tx3-body">
-            The calculator recommends a water volume that puts roughly this
-            many units in your syringe per dose.
-          </p>
-        )}
       </div>
 
       {errors.length > 0 && (

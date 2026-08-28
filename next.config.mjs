@@ -28,13 +28,17 @@ const nextConfig = {
       // sent links working.
       { source: "/auth/:path*", destination: "/app/auth/:path*", permanent: true },
 
-      // Retired: AI features, payments, and the hardcoded vendor/regulation tables.
+      // Pricing lives inside the PWA scope so an installed app doesn't pop
+      // browser chrome mid-upgrade. peptora-android/app/paywall.js falls back
+      // to /pricing when checkout fails, so this keeps that link working.
+      { source: "/pricing", destination: "/app/pricing", permanent: true },
+
+      // Retired: AI features and the hardcoded vendor/regulation tables.
       { source: "/ai-assistant", destination: "/", permanent: true },
       { source: "/stack-checker", destination: "/", permanent: true },
       { source: "/protocol-finder", destination: "/", permanent: true },
       { source: "/vendors", destination: "/", permanent: true },
       { source: "/regulations", destination: "/", permanent: true },
-      { source: "/pricing", destination: "/", permanent: true },
     ];
   },
 };

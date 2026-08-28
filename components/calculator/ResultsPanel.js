@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'lucide-react'
 import SyringeVisual from '@/components/SyringeVisual'
-import AlternativesTable from './AlternativesTable'
 import { WarningsCallout, FrequencyNote } from './Callouts'
 
 const MAX_DOSES_PER_DAY = 12
@@ -32,7 +31,6 @@ export default function ResultsPanel({ result, peptideName }) {
     target_dose_label,
     doses_per_vial,
     recommended_water_ml,
-    alternatives,
     suggested_frequency,
     warnings,
     mode,
@@ -90,13 +88,6 @@ export default function ResultsPanel({ result, peptideName }) {
         units={syringe.draw_units}
         maxUnits={syringe.capacity_units}
       />
-
-      {mode === 'inverse' && (
-        <AlternativesTable
-          alternatives={alternatives}
-          recommendedWater={recommended_water_ml}
-        />
-      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
         <p className="text-[13px] text-tx2">{durationNote}</p>

@@ -68,10 +68,13 @@ function greeting() {
 export default function Home() {
   const { user } = useSession()
 
+  const hasAccess = !!user?.access?.has_access
+
   const stats = useQuery({
     queryKey: qk.protocolStats,
     queryFn: protocolsApi.stats,
-    enabled: !!user,
+    enabled: hasAccess,
+    retry: false,
   })
 
   // Native reads dose_logs off the protocol LIST, but the list serializer has
@@ -80,7 +83,8 @@ export default function Home() {
   const logs = useQuery({
     queryKey: qk.trackerLogs,
     queryFn: trackerApi.listLogs,
-    enabled: !!user,
+    enabled: hasAccess,
+    retry: false,
   })
 
   const firstName = user?.full_name?.split(' ')[0]
@@ -198,6 +202,27 @@ export default function Home() {
         </>
       )}
 
+      {user && !hasAccess && (
+        <div className="card mb-6 border-teal/30 p-5 text-center">
+          <FlaskConical
+            size={36}
+            strokeWidth={1.4}
+            aria-hidden="true"
+            className="mx-auto mb-3 text-teal"
+          />
+          <h2 className="mb-1.5 text-lg font-bold text-tx">
+            Your trial has ended
+          </h2>
+          <p className="mb-5 text-sm leading-6 text-tx3-body">
+            Subscribe to get the calculator, protocols and cycle tracker back.
+            Everything you saved is still here.
+          </p>
+          <Button href="/app/pricing" fullWidth>
+            View plans
+          </Button>
+        </div>
+      )}
+
       {!user && (
         <div className="card mb-6 p-5 text-center">
           <FlaskConical
@@ -210,9 +235,9 @@ export default function Home() {
             Track your peptide protocols
           </h2>
           <p className="mb-5 text-sm leading-6 text-tx3-body">
-            Create an account to save protocols, log doses and keep your
-            calculation history. The calculator and encyclopedia are free to
-            use without one.
+            Create an account for 14 days of full access — protocols, dose
+            logging and unlimited calculations, with no payment details
+            required. The encyclopedia is always free.
           </p>
           <Button href="/app/auth/signup" fullWidth>
             Get started
