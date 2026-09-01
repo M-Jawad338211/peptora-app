@@ -30,6 +30,9 @@ export const metadata = {
     // so this link is what gives an installed app its icon there.
     apple: '/icons/apple-touch-icon.png',
   },
+  verification: {
+    google: 'Rs-_Gsq6XljNdF7Sw46Z_mEnN3Z-H73szPmK6jZQVQc',
+  },
 }
 
 export const viewport = {
