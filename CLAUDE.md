@@ -33,9 +33,9 @@ for long-lived tabs.
 
 ## Key rules
 - All API calls go through `lib/api/index.js`; never `fetch` directly.
-- Server-side reads of public data use `lib/api/server.js` (cached). Anything
-  user-scoped must go through the browser client so it is never cached
-  across users.
+- Server-side reads of the encyclopedia use `lib/api/server.js`, which
+  forwards the session cookie and never caches — those endpoints are licensed
+  now. Anything user-scoped must go through the browser client.
 - Mutations must follow the invalidation matrix — deleting a protocol
   cascade-deletes its dose logs, so it invalidates the tracker feed too.
 - `target_dose_mcg` is always micrograms; `unit` is display-only. Render via
@@ -50,53 +50,74 @@ for long-lived tabs.
 
 ## Structure
 - `app/(marketing)/` — public site: `/`, `/support`, `/privacy-policy`,
-  `/download`. Outside the PWA scope.
-- `app/app/(shell)/` — product screens wrapped in the tab-bar/sidebar chrome:
-  home, encyclopedia (+ `[slug]`), protocols (+ `new`, `[id]`), calculator,
-  tracker, profile.
+  `/download`. Outside the PWA scope. **The only public surface.**
+- `app/app/(shell)/` — LICENCE-GATED product screens in the tab-bar/sidebar
+  chrome: home, encyclopedia (+ `[slug]`, `stacks`), protocols (+ `new`,
+  `[id]`), calculator, tracker.
+- `app/app/(open)/` — same chrome, NO licence gate: `billing`, `profile`.
 - `app/app/auth/`, `app/app/consent/` — inside the PWA scope but without
   navigation chrome.
 - `components/shell/` — `AppShell`, `TabBar` (<768px), `Sidebar` (≥768px).
+- `components/billing/` — paywall, claim form, status timeline, markdown.
 - `lib/` — `api/`, `auth/`, `query/`, `reconstitution.js`, `format.js`.
 - `proxy.js` — token refresh before render (Next 16 renamed this from
   `middleware.js`).
 
+The admin panel is a **separate app**, `../peptora-admin`, deployed to
+admin.peptora.io. It mirrors this app's proxy/cookie architecture and has no
+service worker.
+
 ## PWA
 Scope is `/app/`, `start_url` is `/app/home`, so installing opens the app
 rather than the marketing site. `public/sw.js` is hand-rolled: non-GET
-requests are never intercepted, `/api/peptides*` is stale-while-revalidate,
-and no other API response ever enters CacheStorage. Bump `VERSION` in that
-file on any deploy that changes the shell.
+requests are never intercepted and **no API response ever enters
+CacheStorage**. Bump `VERSION` in that file on any deploy that changes the
+shell.
 
 Icons: `node scripts/gen-icons.mjs` (run manually, output committed). Maskable
 variants are re-composited at 80% on a background sampled from the artwork —
 a plain resize is clipped by Android's circular mask.
 
-## Plans and gating
-One plan, two billing periods: $5/month or $49/year, paid in crypto via
-NOWPayments. New accounts get a 14-day trial at email verification.
+## The paywall
+Peptora is a **one-time purchase**, verified by a human. There is no gateway:
+the user transfers money, files a claim with a receipt at `/app/billing`, and
+an admin approves it in `../peptora-admin`. New accounts get a 14-day trial at
+email verification, bound to the signup device.
 
-Crypto cannot auto-charge, so access is a **prepaid window**, not a
-subscription status — `user.access.has_access` comes from the API and is the
-only thing to gate on. Never recompute it from the dates client-side; the two
-clocks disagree and a browser running fast would paywall someone who just paid.
-Nothing renews on its own, which makes `TrialBanner` load-bearing rather than
-decorative: ignoring it means being locked out, not being charged.
+`user.access.has_access` comes from the API and is the **only** thing to gate
+on. Never recompute it from the dates client-side; the two clocks disagree and
+a browser running fast would lock out someone whose licence was approved a
+moment ago.
 
-- `PlanGate` wraps `AuthGate` — signed out and lapsed are different problems
-  with different fixes. Protocols and Tracker use it.
-- The calculator is the exception. Its engine is client-side JS, so the server
-  cannot refuse a calculation; `CalculatorGate` enforces at the UI layer while
-  `/calculator/record-use` and `/history` return 402 server-side. Anonymous
-  visitors keep 5 free calculations as top-of-funnel.
-- Encyclopedia and stacks stay free.
-- `CheckoutReturn` polls the session after `?checkout=success`: crediting
-  happens on a server-to-server IPN with no ordering against the redirect, and
-  `useSession` caches for 5 minutes.
+- **The gate is structural, not an allowlist.** `(shell)/layout.js` redirects
+  unconditionally; anything reachable without a licence lives in `(open)/`.
+  Adding a route to the wrong group is the failure mode to watch for — an
+  allowlist is one forgotten entry from trapping a user who has just paid.
+- The server redirect is UX. The API is the enforcement: every product
+  endpoint 402s, `/peptides` and `/stacks` included.
+- `lib/api/server.js` forwards the session cookie and uses `no-store`. It used
+  to be uncredentialed and cached; with the encyclopedia gated, a shared cache
+  keyed only by URL would serve one user's authorised response to the next.
+- `public/sw.js` caches NOTHING under `/api/`. It used to hold
+  `/api/peptides*` stale-while-revalidate, which after gating would have kept
+  serving the encyclopedia to lapsed users straight out of CacheStorage.
+  **Bump `VERSION` on any change here** — that is what evicts old entries.
+- `PlanGate` and `CalculatorGate` are now defence-in-depth behind the layout
+  redirect, kept for client-side navigation and sessions that lapse mid-visit.
+- `TrialBanner` hides itself for `is_lifetime` — a purchase has no countdown.
+- `visibleNavItems()` hides gated destinations from users without a licence,
+  so the paywall does not show a menu where every link bounces back to it.
+- Waiting is the real risk: approval takes hours. `ClaimStatus` polls every
+  30s (not 3s — the scale is human), pauses when the tab is hidden, and
+  refetches the session on approval because `useSession` caches for 5 minutes.
 
 ## Not in this app
 No AI features. The `/ai-assistant`, `/stack-checker`, `/protocol-finder`,
 `/vendors` and `/regulations` routes were removed and redirect to `/`.
+
+No crypto checkout UI. The NOWPayments rail still exists in the API but is
+parked behind `app_settings.crypto_payments_enabled`; `/app/pricing` and its
+components were removed and the route redirects to `/app/billing`.
 
 ## Local dev
 ```bash

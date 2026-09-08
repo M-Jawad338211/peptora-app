@@ -98,24 +98,36 @@ function ProfileContent({ user }) {
 
       <section className="card mb-2.5 p-4">
         <p className="mb-1.5 text-[13px] font-semibold text-tx">
-          {hasAccess
-            ? access.is_trial
-              ? 'You are on the free trial'
-              : 'Your subscription is active'
-            : 'No active subscription'}
+          {access?.is_lifetime
+            ? 'You own Peptora'
+            : hasAccess
+              ? access.is_trial
+                ? 'You are on the free trial'
+                : 'Your access is active'
+              : access?.is_revoked
+                ? 'Your access has been withdrawn'
+                : 'No licence yet'}
         </p>
         <p className="mb-3.5 text-[12px] leading-5 text-tx3-body">
-          {hasAccess
-            ? 'Crypto payments cannot be charged automatically, so nothing renews on its own. We will email you a few days before your access ends.'
-            : 'Subscribe to unlock the dose calculator, protocols and the cycle tracker.'}
+          {access?.is_lifetime
+            ? 'A one-time purchase. There is no renewal, no expiry and nothing to cancel.'
+            : hasAccess
+              ? 'When your trial ends the app locks. Peptora is a one-time purchase — buy it once and it is yours.'
+              : access?.is_revoked
+                ? 'Get in touch and we will look into it with you.'
+                : 'One payment unlocks the encyclopedia, calculator, protocols and cycle tracker, permanently.'}
         </p>
-        <Button
-          href="/app/pricing"
-          variant={hasAccess ? 'secondary' : 'primary'}
-          fullWidth
-        >
-          {hasAccess ? 'Extend access' : 'View plans'}
-        </Button>
+        {/* A lifetime licence has nothing to buy, so this becomes a receipt
+            rather than a sales pitch — no button at all. */}
+        {!access?.is_lifetime && (
+          <Button
+            href="/app/billing"
+            variant={hasAccess ? 'secondary' : 'primary'}
+            fullWidth
+          >
+            {hasAccess ? 'Unlock permanently' : 'Unlock Peptora'}
+          </Button>
+        )}
       </section>
 
       <p className="card mb-4 p-4 text-[12px] leading-5 text-tx3-body italic">

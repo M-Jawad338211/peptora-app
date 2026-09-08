@@ -1,11 +1,13 @@
 import Link from 'next/link'
 
 export default function Home() {
+  // Every tool is behind the licence now, so the old "Free" badges were a
+  // promise the app no longer keeps. The trial is the honest offer.
   const tools = [
-    { href: '/app/calculator', icon: '⚗️', label: 'Dose Calculator', desc: 'Reconstitution and syringe dosing — free forever', badge: 'Free' },
-    { href: '/app/encyclopedia', icon: '📖', label: 'Peptide Encyclopedia', desc: 'Mechanisms, studied dose ranges and research status', badge: 'Free' },
-    { href: '/app/protocols', icon: '🧪', label: 'Protocols', desc: 'Save your regimens and log every dose', badge: 'Free' },
-    { href: '/app/tracker', icon: '📊', label: 'Cycle Tracker', desc: 'Log daily doses and review your history', badge: 'Free' },
+    { href: '/app/calculator', icon: '⚗️', label: 'Dose Calculator', desc: 'Reconstitution and syringe dosing, worked out for you', badge: '14-day trial' },
+    { href: '/app/encyclopedia', icon: '📖', label: 'Peptide Encyclopedia', desc: 'Mechanisms, studied dose ranges and research status', badge: '14-day trial' },
+    { href: '/app/protocols', icon: '🧪', label: 'Protocols', desc: 'Save your regimens and log every dose', badge: '14-day trial' },
+    { href: '/app/tracker', icon: '📊', label: 'Cycle Tracker', desc: 'Log daily doses and review your history', badge: '14-day trial' },
   ]
 
   return (
@@ -59,23 +61,23 @@ export default function Home() {
           lineHeight: 1.75, maxWidth: '520px',
           margin: '0 auto 44px',
         }}>
-          Precision tools and research-backed intelligence for serious peptide scientists. Free forever for the essentials.
+          Precision tools and research-backed intelligence for serious peptide scientists. Free for 14 days, then one payment — no subscription, nothing to cancel.
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/app/calculator" style={{
+          <Link href="/app/auth/signup" style={{
             fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 600,
             color: '#021a0e', textDecoration: 'none',
             background: 'linear-gradient(135deg, #00d68f, #00f0a0)',
             borderRadius: '13px', padding: '16px 36px',
             boxShadow: '0 8px 32px rgba(0,214,143,0.3)',
-          }}>Open dose calculator →</Link>
-          <Link href="/app/encyclopedia" style={{
+          }}>Start your free trial →</Link>
+          <Link href="/app/billing" style={{
             fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 400,
             color: 'var(--tx2)', textDecoration: 'none',
             background: 'var(--sl)', border: '1px solid rgba(255,255,255,0.14)',
             borderRadius: '13px', padding: '16px 36px',
-          }}>Browse encyclopedia</Link>
+          }}>See the price</Link>
         </div>
       </div>
 
@@ -88,7 +90,7 @@ export default function Home() {
         gap: '14px',
       }}>
         {tools.map(tool => (
-          <Link key={tool.href} href={tool.href} style={{
+          <Link key={tool.href} href="/app/auth/signup" style={{
             textDecoration: 'none',
             background: 'var(--navy2)',
             border: '1px solid rgba(255,255,255,0.09)',
@@ -100,9 +102,9 @@ export default function Home() {
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 500,
                 padding: '3px 10px', borderRadius: '20px',
-                background: tool.badge === 'Free' ? 'rgba(0,214,143,0.10)' : 'rgba(226,185,106,0.10)',
-                color: tool.badge === 'Free' ? 'var(--teal)' : 'var(--gold)',
-                border: tool.badge === 'Free' ? '1px solid rgba(0,214,143,0.22)' : '1px solid rgba(226,185,106,0.25)',
+                background: 'rgba(0,214,143,0.10)',
+                color: 'var(--teal)',
+                border: '1px solid rgba(0,214,143,0.22)',
               }}>{tool.badge}</span>
             </div>
             <div style={{

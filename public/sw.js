@@ -4,25 +4,26 @@
  * Hand-rolled rather than generated. next-pwa is unmaintained, and
  * @serwist/next injects through a webpack plugin while Next 16 builds with
  * Turbopack by default. The actual requirement is small: an offline shell,
- * a cached encyclopedia, and — most importantly — a guarantee that no
- * authenticated or health data is ever written to CacheStorage.
+ * and — most importantly — a guarantee that no authenticated, paid or health
+ * data is ever written to CacheStorage.
  *
  * Bump VERSION on any deploy that changes the shell; `activate` purges every
  * cache that does not carry the current version.
  */
-const VERSION = 'v2'
+// v3 drops the encyclopedia cache. /api/peptides and /api/stacks used to be
+// unauthenticated and were cached stale-while-revalidate; they now sit behind
+// the licence gate, and a cached copy would keep serving the encyclopedia to a
+// lapsed user straight out of CacheStorage — a paywall bypass for anyone who
+// had visited before. The version bump is what evicts those existing entries.
+const VERSION = 'v3'
 const SHELL_CACHE = `peptora-shell-${VERSION}`
 const STATIC_CACHE = `peptora-static-${VERSION}`
-const API_CACHE = `peptora-api-${VERSION}`
-const CURRENT = [SHELL_CACHE, STATIC_CACHE, API_CACHE]
+const CURRENT = [SHELL_CACHE, STATIC_CACHE]
 
 const OFFLINE_URL = '/app/offline'
 const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png']
 
 const API_PREFIX = '/api/'
-// The only API data safe to cache: the public peptide/stack reference, which
-// is identical for every user and requires no credentials.
-const CACHEABLE_API = /^\/api\/(peptides|stacks)(\/|$)/
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -55,14 +56,10 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  if (url.pathname.startsWith(API_PREFIX)) {
-    if (CACHEABLE_API.test(url.pathname)) {
-      event.respondWith(staleWhileRevalidate(request))
-    }
-    // Everything else under /api — auth, protocols, tracker, calculator — is
-    // left to the network entirely and never enters CacheStorage.
-    return
-  }
+  // Nothing under /api is ever cached. Every endpoint is now either
+  // authenticated or licence-gated, so a cached response is a response served
+  // to someone who may no longer be entitled to it.
+  if (url.pathname.startsWith(API_PREFIX)) return
 
   if (request.mode === 'navigate') {
     event.respondWith(navigationHandler(request))
@@ -82,22 +79,6 @@ async function cacheFirst(request, cacheName) {
   const res = await fetch(request)
   if (res.ok) cache.put(request, res.clone())
   return res
-}
-
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(API_CACHE)
-  const hit = await cache.match(request)
-
-  const network = fetch(request)
-    .then((res) => {
-      if (res.ok) cache.put(request, res.clone())
-      return res
-    })
-    .catch(() => null)
-
-  if (hit) return hit
-  const res = await network
-  return res ?? Response.error()
 }
 
 async function navigationHandler(request) {

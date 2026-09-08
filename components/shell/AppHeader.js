@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Calculator, ChartLine } from 'lucide-react'
 import { activeNavItem } from '@/lib/nav'
+import { useSession } from '@/lib/auth/session'
 
 /**
  * Sticky top bar. Carries the screen title (matching the native stack header)
@@ -15,11 +16,17 @@ export default function AppHeader() {
   const pathname = usePathname()
   const active = activeNavItem(pathname)
   const title = active?.title ?? 'Peptora'
+  const { user } = useSession()
+  const hasAccess = !!user?.access?.has_access
 
-  const shortcuts = [
-    { href: '/app/calculator', label: 'Dose calculator', icon: Calculator },
-    { href: '/app/tracker', label: 'Cycle tracker', icon: ChartLine },
-  ].filter((s) => !pathname.startsWith(s.href))
+  // Both shortcuts point behind the licence gate, so they are dropped for a
+  // user without one rather than offered as a route back to the paywall.
+  const shortcuts = hasAccess
+    ? [
+        { href: '/app/calculator', label: 'Dose calculator', icon: Calculator },
+        { href: '/app/tracker', label: 'Cycle tracker', icon: ChartLine },
+      ].filter((s) => !pathname.startsWith(s.href))
+    : []
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-hairline bg-navy/95 px-4 backdrop-blur-md md:px-6">

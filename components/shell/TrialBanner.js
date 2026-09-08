@@ -9,20 +9,25 @@ import { useSession } from '@/lib/auth/session'
 const NUDGE_DAYS = 5
 
 /**
- * A quiet countdown once access is nearly up.
+ * A quiet countdown once the trial is nearly up.
  *
- * This matters more here than it would with cards: nothing renews on its own,
- * so a user who ignores it does not get charged — they get locked out. The
- * banner is the main thing standing between "my subscription lapsed" and
- * "Peptora broke".
+ * This matters more than a subscription nudge would: at the end of the trial
+ * the whole app locks, and buying is a manual process that takes hours to
+ * clear. Someone who leaves it until the last day is locked out for a while
+ * even after paying — so the banner is what buys them the time to avoid that.
  */
 export default function TrialBanner() {
   const { user } = useSession()
   const pathname = usePathname()
 
   const access = user?.access
-  // Pointless on the page that already sells the plan.
-  if (!access?.has_access || pathname === '/app/pricing') return null
+
+  // A one-time licence has no end date. Counting down at a user who bought the
+  // product outright would be nonsense, and alarming nonsense at that.
+  if (!access?.has_access || access.is_lifetime) return null
+
+  // Pointless on the page that already sells the licence.
+  if (pathname === '/app/billing') return null
 
   const days = access.days_remaining
   if (typeof days !== 'number' || days > NUDGE_DAYS) return null
@@ -32,15 +37,13 @@ export default function TrialBanner() {
 
   return (
     <Link
-      href="/app/pricing"
+      href="/app/billing"
       className="mb-3 flex items-center gap-2.5 rounded-[12px] border border-warn/25 bg-warn/10 px-3.5 py-2.5 no-underline transition-colors hover:border-warn/40"
     >
       <Clock size={15} aria-hidden="true" className="shrink-0 text-warn" />
       <span className="text-[13px] leading-5 text-tx2">
-        {noun} ends {when}.{' '}
-        <span className="font-semibold text-tx">
-          {access.is_trial ? 'Choose a plan' : 'Extend access'} →
-        </span>
+        {noun} ends {when}. Payments are checked by hand, so allow a day.{' '}
+        <span className="font-semibold text-tx">Unlock Peptora →</span>
       </span>
     </Link>
   )

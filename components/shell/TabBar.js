@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TAB_ITEMS, activeNavItem } from '@/lib/nav'
+import { TAB_ITEMS, activeNavItem, visibleNavItems } from '@/lib/nav'
+import { useSession } from '@/lib/auth/session'
 
 /**
  * Mobile bottom tab bar. Hidden at md and above, where Sidebar takes over.
@@ -15,6 +16,8 @@ import { TAB_ITEMS, activeNavItem } from '@/lib/nav'
 export default function TabBar() {
   const pathname = usePathname()
   const active = activeNavItem(pathname)
+  const { user } = useSession()
+  const items = visibleNavItems(TAB_ITEMS, !!user?.access?.has_access)
 
   return (
     <nav
@@ -23,7 +26,7 @@ export default function TabBar() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <ul className="flex h-tabbar items-stretch">
-        {TAB_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon
           const isActive = active?.href === item.href
           return (

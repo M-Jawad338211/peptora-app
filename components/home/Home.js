@@ -214,11 +214,11 @@ export default function Home() {
             Your trial has ended
           </h2>
           <p className="mb-5 text-sm leading-6 text-tx3-body">
-            Subscribe to get the calculator, protocols and cycle tracker back.
-            Everything you saved is still here.
+            One payment unlocks everything, permanently. Nothing you saved has
+            gone anywhere.
           </p>
-          <Button href="/app/pricing" fullWidth>
-            View plans
+          <Button href="/app/billing" fullWidth>
+            Unlock Peptora
           </Button>
         </div>
       )}

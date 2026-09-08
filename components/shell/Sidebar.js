@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { NAV_ITEMS, activeNavItem } from '@/lib/nav'
+import { NAV_ITEMS, activeNavItem, visibleNavItems } from '@/lib/nav'
+import { useSession } from '@/lib/auth/session'
 
 /**
  * Desktop navigation. Hidden below md, where TabBar takes over.
@@ -13,6 +14,8 @@ import { NAV_ITEMS, activeNavItem } from '@/lib/nav'
 export default function Sidebar() {
   const pathname = usePathname()
   const active = activeNavItem(pathname)
+  const { user } = useSession()
+  const items = visibleNavItems(NAV_ITEMS, !!user?.access?.has_access)
 
   return (
     <aside
@@ -20,7 +23,7 @@ export default function Sidebar() {
       className="fixed inset-y-0 left-0 z-40 hidden w-sidebar flex-col border-r border-hairline bg-surface md:flex"
     >
       <Link
-        href="/app/home"
+        href={user?.access?.has_access ? '/app/home' : '/app/billing'}
         className="flex items-center gap-2.5 px-5 py-4 no-underline"
       >
         <span
@@ -35,7 +38,7 @@ export default function Sidebar() {
       </Link>
 
       <ul className="flex flex-col gap-0.5 px-3 py-2">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon
           const isActive = active?.href === item.href
           return (

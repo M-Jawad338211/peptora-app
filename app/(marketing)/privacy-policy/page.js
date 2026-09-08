@@ -41,8 +41,10 @@ const sections = [
       'Account information: email address, password credentials, optional full name, verification status, plan type, account settings, and authentication session information.',
       'Usage and research-tool information: calculator inputs and results, calculator usage counts, calculator history for eligible accounts, feature access events, dashboard data, and information you enter into tools such as the cycle tracker, stack checker, protocol finder, or AI research assistant.',
       'AI interaction information: prompts, conversation history sent for context, generated responses, and related metadata needed to provide AI-powered features.',
-      'Payment and subscription information: plan selection, subscription status, renewal dates, cancellation status, Stripe customer identifiers, and billing portal activity. Peptora does not store full payment card numbers.',
-      'Device and technical information: browser type, device characteristics, operating system, language, timezone, approximate screen details, IP-derived request metadata, cookies, session tokens, logs, and a hashed device fingerprint used for trial limits, abuse prevention, and security.',
+      'Payment information: your submitted payment reference, the amount and date you report, the name on the sending account, any note you add, and the receipt file you upload as proof of payment. Peptora has no card processor and never receives or stores card numbers.',
+      'Receipt files are proof-of-payment documents you choose to upload. They commonly contain your name, partial bank account or transaction identifiers, and the amount transferred. They are stored in private object storage, are readable only by Peptora administrators reviewing your payment, and are never publicly accessible.',
+      'Licence information: whether your account holds a licence, when it was granted, and whether access has been withdrawn.',
+      'Device and technical information: browser type, device characteristics, operating system, language, timezone, approximate screen details, IP-derived request metadata, cookies, session tokens, logs, and a hashed device fingerprint used to enforce one free trial per device, prevent abuse, and protect security.',
       'Communications: messages you send to us, verification emails, password reset requests, support inquiries, and transactional email delivery information.',
     ],
   },
@@ -60,15 +62,15 @@ const sections = [
     title: 'Cookies, Sessions, and Device Fingerprints',
     body: [
       'Peptora uses cookies and similar technologies to keep you signed in, protect sessions, remember authentication state, and support account security. The app uses httpOnly authentication cookies for access and refresh tokens.',
-      'Peptora also generates a hashed device fingerprint from browser and device signals such as user agent, screen size, timezone, language, and hardware concurrency. This fingerprint is stored in session storage and helps enforce free trial limits and reduce abuse.',
+      'Peptora also generates a hashed device fingerprint from browser and device signals such as user agent, screen size, timezone, language, and hardware concurrency. This fingerprint is recorded when a free trial is granted, so that each device receives one trial, and it helps reduce abuse.',
     ],
   },
   {
     num: '5',
     title: 'How We Share Information',
     body: [
-      'We do not sell your personal information. We share information with service providers that help us run Peptora, including cloud hosting, database, authentication, email delivery, analytics or logging, payment processing, and AI infrastructure providers.',
-      'Payment processing is handled through Stripe. AI-powered requests may be processed by AI model providers, including Anthropic, to generate research responses. These providers process information according to their own contracts and policies.',
+      'We do not sell your personal information. We share information with service providers that help us run Peptora, including cloud hosting, database, object storage, authentication, email delivery, analytics or logging, and AI infrastructure providers.',
+      'Payments are verified manually by Peptora administrators. There is no third-party payment processor involved, so no payment intermediary receives your information. Receipt files you upload are not shared with anyone outside Peptora. AI-powered requests may be processed by AI model providers, including Anthropic, to generate research responses.',
       'We may also disclose information when required by law, to protect Peptora or users, to investigate abuse, to enforce our terms, or as part of a merger, acquisition, financing, or business transfer.',
     ],
   },
@@ -77,7 +79,8 @@ const sections = [
     title: 'Data Retention',
     body: [
       'We keep information for as long as needed to provide Peptora, maintain your account, comply with legal or tax obligations, resolve disputes, enforce agreements, and protect platform security.',
-      'Calculator history, subscription records, audit logs, authentication records, and AI feature data may be retained for different periods depending on product, security, billing, and legal needs. We may delete or de-identify information when it is no longer needed.',
+      'Calculator history, payment records, audit logs, authentication records, and AI feature data may be retained for different periods depending on product, security, billing, and legal needs. We may delete or de-identify information when it is no longer needed.',
+      'Receipt files are deleted twelve months after your payment is reviewed. The payment record itself — the amount, reference and decision — is kept for longer, as the record of why your account holds a licence.',
     ],
   },
   {

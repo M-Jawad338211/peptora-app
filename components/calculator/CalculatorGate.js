@@ -21,10 +21,10 @@ import Skeleton from '@/components/ui/Skeleton'
  * locked. This component enforces the rest at the UI layer, which is the
  * honest limit of what is enforceable for an offline-capable PWA.
  *
- * Three states, matching the API's check-trial contract:
- *   signed out, under the anonymous allowance -> render, show what's left
- *   signed out, allowance spent              -> sign-up wall
- *   signed in, no live window                -> paywall
+ * The anonymous 5-calculation preview is gone with the move to a paid app
+ * shell, and the route now sits behind the licence gate, so in practice this
+ * only ever renders for a licensed user. It is kept as the last line of
+ * defence for a session that lapses while the tab is open.
  */
 export default function CalculatorGate({ children }) {
   const { user, isPending: sessionPending } = useSession()
@@ -71,30 +71,16 @@ export default function CalculatorGate({ children }) {
   if (trial.data?.allowed === false) {
     return user ? (
       <PlanPrompt
-        title="Subscribe to keep calculating"
-        subtitle="Your trial has ended. Peptora Pro unlocks unlimited dose calculations, protocols and the cycle tracker."
+        title="Unlock Peptora to keep calculating"
+        subtitle="Your trial has ended. One payment unlocks the calculator, encyclopedia, protocols and tracker — permanently."
       />
     ) : (
       <AuthPrompt
-        title="Create an account to keep calculating"
-        subtitle="You've used your free previews. New accounts get 14 days of full access, with no payment details required."
+        title="Create an account to use the calculator"
+        subtitle="New accounts get 14 days of full access, with no payment details required."
       />
     )
   }
 
-  const remaining = trial.data?.remaining
-  return (
-    <>
-      {!user && typeof remaining === 'number' && (
-        <p className="card mb-3 p-3 text-[13px] leading-5 text-tx3-body">
-          <strong className="text-tx2">
-            {remaining} free calculation{remaining === 1 ? '' : 's'} left.
-          </strong>{' '}
-          Create an account for 14 days of unlimited access — no payment details
-          needed.
-        </p>
-      )}
-      {children}
-    </>
-  )
+  return children
 }
