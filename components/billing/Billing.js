@@ -9,6 +9,7 @@ import { useSession } from '@/lib/auth/session'
 import Button from '@/components/ui/Button'
 import Skeleton from '@/components/ui/Skeleton'
 import Markdown from './Markdown'
+import HowItWorks from './HowItWorks'
 import ClaimForm from './ClaimForm'
 import ClaimStatus from './ClaimStatus'
 
@@ -141,6 +142,10 @@ export default function Billing() {
             <p className="mt-2 text-[12px] text-tx3-body">Paid once. Yours permanently.</p>
           </section>
 
+          {cfg.manual_payments_enabled && (
+            <HowItWorks price={cfg.price} currency={cfg.currency} slaHours={cfg.review_sla_hours} />
+          )}
+
           {!cfg.manual_payments_enabled && (
             <p className="card mb-3 flex items-start gap-2.5 border-warn/30 p-4 text-[13px] leading-5 text-tx3-body">
               <TriangleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-warn" />
@@ -155,7 +160,7 @@ export default function Billing() {
           {cfg.manual_payments_enabled && (
             <>
               {/* Bank details */}
-              <section className="card mb-3 p-5">
+              <section id="bank-details" className="card mb-3 scroll-mt-4 p-5">
                 <div className="mb-3 flex items-center gap-2.5">
                   <Building2 size={16} aria-hidden="true" className="shrink-0 text-tx3-body" />
                   <h2 className="font-mono text-[11px] uppercase tracking-wide text-tx3-body">
@@ -217,12 +222,6 @@ export default function Billing() {
           ))}
         </ul>
       </section>
-
-      {hasAccess && (
-        <Button href="/app/home" fullWidth className="mb-3">
-          Open Peptora
-        </Button>
-      )}
 
       <p className="card p-4 text-[12px] leading-5 italic text-tx3-body">
         Peptora is for research and educational use only. Nothing here
