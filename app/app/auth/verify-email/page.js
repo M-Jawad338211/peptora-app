@@ -2,10 +2,8 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'next/navigation'
 import { auth } from '@/lib/api'
-import { qk } from '@/lib/query/keys'
 import AuthCard from '@/components/auth/AuthCard'
 import Field from '@/components/ui/Field'
 import Button from '@/components/ui/Button'
@@ -14,8 +12,6 @@ const RESEND_COOLDOWN_SECONDS = 30
 
 function VerifyEmailForm() {
   const params = useSearchParams()
-  const router = useRouter()
-  const queryClient = useQueryClient()
 
   const [email, setEmail] = useState(params.get('email') || '')
   const [otp, setOtp] = useState('')
@@ -39,9 +35,12 @@ function VerifyEmailForm() {
     setLoading(true)
     try {
       await auth.verifyEmail({ email, otp: code })
-      // This is the call that actually establishes the session.
-      await queryClient.invalidateQueries({ queryKey: qk.session })
-      router.replace('/app/home')
+      // This is the call that actually establishes the session. Hard
+      // navigation, not router.replace — same reasoning as login and
+      // consent: a soft nav can replay a Router Cache entry for /app/home
+      // cached before this tab had a session at all, bouncing back to a
+      // stale redirect instead of the now-gated layout's fresh verdict.
+      window.location.href = '/app/home'
     } catch (err) {
       setError(err.message || 'Invalid or expired verification code')
       submittedFor.current = null

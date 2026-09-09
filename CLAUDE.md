@@ -31,6 +31,23 @@ render, since Server Components can read cookies but cannot set them.
 `lib/api/client.js` keeps a single-flight refresh-and-replay as a backstop
 for long-lived tabs.
 
+**Never `router.replace()` into a gated route right after a mutation that
+changes what the gate sees** (login, consent acceptance, email verification —
+anything after which `(shell)/layout.js` or `(open)/layout.js` should now
+redirect differently). The Client Router Cache is keyed by URL, and if this
+tab visited the target earlier in the same session — which it almost always
+has, since that's *how it ended up on the auth/consent screen* —
+`router.replace()` can replay the cached `redirect()` from before the
+mutation instead of asking the server again. That reads as "stuck on the
+same page" or "keeps bouncing back," and it's exactly the shape of bug it
+looks like: the mutation genuinely succeeded (a hard reload shows it), only
+the soft navigation is lying. The fix used in `login/`, `consent/` and
+`verify-email/` is `window.location.href = target` — a real request, so the
+gated layout re-reads the actual, current session. Validate anything that
+reaches `window.location.href` from a query param first (`lib/safe-next.js`)
+— unlike `router.replace()`, it will leave the app for an external origin
+with no complaint.
+
 ## Key rules
 - All API calls go through `lib/api/index.js`; never `fetch` directly.
 - Server-side reads of the encyclopedia use `lib/api/server.js`, which

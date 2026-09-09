@@ -1,10 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import { auth } from '@/lib/api'
-import { qk } from '@/lib/query/keys'
 import { useLogout } from '@/lib/auth/session'
 import Button from '@/components/ui/Button'
 
@@ -43,8 +40,6 @@ export default function ConsentPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [confirmDecline, setConfirmDecline] = useState(false)
-  const router = useRouter()
-  const queryClient = useQueryClient()
   const logout = useLogout()
 
   const handleAccept = async () => {
@@ -52,8 +47,16 @@ export default function ConsentPage() {
     setLoading(true)
     try {
       await auth.acceptConsent()
-      await queryClient.invalidateQueries({ queryKey: qk.session })
-      router.replace('/app/home')
+      // Hard navigation, not router.replace. The Client Router Cache is keyed
+      // by URL, and this tab almost certainly already visited /app/home once
+      // this session — the moment before consent was accepted, when
+      // (shell)/layout.js threw redirect('/app/consent'). A soft navigation
+      // can replay that cached redirect and bounce straight back here even
+      // though the server-side consent_accepted flag is now true, which is
+      // exactly the "accepting doesn't take me anywhere" loop. A hard
+      // navigation forces a fresh request, so the layout re-reads the real,
+      // current session instead of a stale cached verdict.
+      window.location.href = '/app/home'
     } catch (err) {
       // Native leaves the user on an infinite spinner if this fails. Show the
       // error and let them retry.

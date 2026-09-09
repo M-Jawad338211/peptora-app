@@ -3,9 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import { auth } from '@/lib/api'
-import { qk } from '@/lib/query/keys'
+import { safeNext } from '@/lib/safe-next'
 import AuthCard from '@/components/auth/AuthCard'
 import Field from '@/components/ui/Field'
 import Button from '@/components/ui/Button'
@@ -17,9 +16,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const params = useSearchParams()
-  const queryClient = useQueryClient()
 
-  const next = params.get('next') || '/app/home'
+  // Validated before use — see lib/safe-next.js for why an unchecked
+  // `next` is an open redirect once this hard-navigates.
+  const next = safeNext(params.get('next'))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,8 +37,16 @@ export default function LoginPage() {
         return
       }
 
-      await queryClient.invalidateQueries({ queryKey: qk.session })
-      router.replace(next)
+      // A soft navigation (router.replace) fetches the RSC payload for `next`
+      // through Next's client Router Cache, which is keyed by URL alone. If
+      // this browser tab visited `next` earlier while signed out, that cache
+      // entry holds the REDIRECT (shell)/layout.js threw back then — and
+      // replaying it bounces straight back to /app/auth/login regardless of
+      // how fresh the session cookie now is. A hard navigation forces a real
+      // request, so the server re-reads the cookie it just set and the
+      // gated layout sees the real, current session. Same reasoning as the
+      // checkout redirect in components/billing/Billing.js.
+      window.location.href = next
     } catch (err) {
       setError(err.message || 'Invalid email or password')
       setLoading(false)
