@@ -102,9 +102,23 @@ an admin approves it in `../peptora-admin`. New accounts get a 14-day trial at
 email verification, bound to the signup device.
 
 `user.access.has_access` comes from the API and is the **only** thing to gate
-on. Never recompute it from the dates client-side; the two clocks disagree and
-a browser running fast would lock out someone whose licence was approved a
-moment ago.
+*feature access* on. Never recompute it from the dates client-side; the two
+clocks disagree and a browser running fast would lock out someone whose
+licence was approved a moment ago.
+
+**`has_access` is not "owns it."** A live trial satisfies `has_access` too.
+`/app/billing` is the one screen where that distinction is load-bearing —
+Profile's "Unlock permanently" button sends a trial user there specifically
+to buy early, and gating the purchase flow on `has_access` (instead of
+`is_lifetime`) turns that into a header claiming "you own this outright"
+with no price, no bank details and no way to actually pay. Everywhere else
+in the app (`PlanGate`, `CalculatorGate`, `Home`, `TrialBanner`) `has_access`
+is exactly the right test — those screens ask "can this user use the tool
+right now," and a trial answers that the same as a purchase. Only
+`components/billing/Billing.js` needs `is_lifetime`, because it is the only
+screen asking "does this user need to pay" rather than "can they use this."
+Fixed 2026-09-09 — see git history on that file before assuming `hasAccess`
+is safe to reach for there again.
 
 - **The gate is structural, not an allowlist.** `(shell)/layout.js` redirects
   unconditionally; anything reachable without a licence lives in `(open)/`.

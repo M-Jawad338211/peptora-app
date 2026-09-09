@@ -56,38 +56,61 @@ export default function Billing() {
   const cfg = info.data
   const latest = claims.data?.[0] ?? null
   const isPending = latest?.status === 'submitted' || latest?.status === 'under_review'
+
+  // `hasAccess` alone is NOT "owns it" — a live trial satisfies has_access
+  // too. Gating the purchase flow on hasAccess hid it from every trial user,
+  // which is exactly the account this screen exists for: Profile's "Unlock
+  // permanently" button sends a trial user here specifically to buy early,
+  // and hasAccess-gating turned that into a dead end with no price, no bank
+  // details and no way to submit a payment. `is_lifetime` is the only
+  // correct test for "owns it outright."
   const hasAccess = !!user?.access?.has_access
+  const isLifetime = !!user?.access?.is_lifetime
+  const isRevoked = !!user?.access?.is_revoked
+  const isTrial = !!user?.access?.is_trial
+  const daysRemaining = user?.access?.days_remaining
+  // Locked out right now, as opposed to "hasn't bought yet but is still on a
+  // usable trial" — a trial user is not locked, so a Lock icon and "Unlock"
+  // framing would contradict the fact that every tool works for them today.
+  const locked = !hasAccess || isRevoked
 
   // Show the form when there is nothing in flight, or when a rejected user
-  // has chosen to correct and resend.
+  // has chosen to correct and resend. Deliberately available during a live
+  // trial, not only after it lapses — buying early is the point.
   const showForm =
     cfg?.manual_payments_enabled &&
-    !hasAccess &&
-    !user?.access?.is_revoked &&
+    !isLifetime &&
+    !isRevoked &&
     (forceForm || (!isPending && latest?.status !== 'approved'))
 
   return (
     <div className="mx-auto max-w-[640px]">
       <header className="mb-6 text-center">
-        {!hasAccess && (
+        {locked && (
           <Lock size={34} strokeWidth={1.4} aria-hidden="true" className="mx-auto mb-3 text-tx3" />
         )}
         <h1 className="mb-2 text-[28px] font-extrabold leading-tight text-tx">
-          {hasAccess ? 'Your Peptora licence' : 'Unlock Peptora'}
+          {isLifetime ? 'Your Peptora licence' : locked ? 'Unlock Peptora' : 'Buy Peptora'}
         </h1>
         <p className="mx-auto max-w-[46ch] text-sm leading-6 text-tx3-body">
-          {hasAccess
+          {isLifetime
             ? 'You own Peptora outright. There is no renewal and nothing to cancel.'
-            : user?.access?.is_revoked
+            : isRevoked
               ? 'Get in touch and we will sort this out with you.'
-              : 'One payment. Buy it once and it is yours — no subscription, no recurring charge, nothing to cancel.'}
+              : isTrial
+                ? `You're on a free trial${
+                    typeof daysRemaining === 'number'
+                      ? ` — ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left`
+                      : ''
+                  }. Buy now to keep everything after it ends — one payment, no subscription, nothing to renew.`
+                : 'One payment. Buy it once and it is yours — no subscription, no recurring charge, nothing to cancel.'}
         </p>
       </header>
 
       {/* Revocation outranks everything, including an approved claim. Without
           this the ClaimStatus below would cheerfully tell someone who has been
           cut off that their licence is active. */}
-      {user?.access?.is_revoked && (
+      {isRevoked && (
         <div className="card mb-3 flex items-start gap-3 border-danger/30 p-4">
           <TriangleAlert size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-danger" />
           <div>
@@ -103,7 +126,7 @@ export default function Billing() {
         </div>
       )}
 
-      {hasAccess && user?.access?.is_lifetime && (
+      {isLifetime && (
         <div className="card mb-3 flex items-start gap-3 border-teal/30 p-4">
           <Check size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-teal" />
           <div>
@@ -115,7 +138,7 @@ export default function Billing() {
         </div>
       )}
 
-      {latest && !showForm && !user?.access?.is_revoked && (
+      {latest && !showForm && !isRevoked && (
         <div className="mb-3">
           <ClaimStatus
             claim={latest}
@@ -125,7 +148,7 @@ export default function Billing() {
         </div>
       )}
 
-      {!hasAccess && !user?.access?.is_revoked && (
+      {!isLifetime && !isRevoked && (
         <>
           {/* Price */}
           <section className="card mb-3 p-5 text-center">
