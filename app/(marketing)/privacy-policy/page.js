@@ -1,289 +1,297 @@
 import Link from 'next/link'
+import { ClipboardList, ShieldCheck, Trash2 } from 'lucide-react'
+import { SUPPORT_EMAIL } from '@/lib/site'
 
 export const metadata = {
-  title: 'Privacy Policy — Peptora',
-  description: 'How Peptora collects, uses, and protects information for its peptide research intelligence platform.',
+  title: 'Privacy Policy · Peptora',
+  description:
+    'What Peptora stores, why, who processes it, and how to delete your account and everything in it.',
 }
 
-const effectiveDate = 'May 11, 2026'
+// Update this whenever the text below changes in substance.
+const effectiveDate = 'October 1, 2026'
 
 const highlights = [
   {
-    icon: '🔬',
-    label: 'Research-first data',
-    text: 'Peptora stores account, subscription, calculator, and AI feature data so the platform can operate and improve.',
+    icon: ClipboardList,
+    label: 'What we store',
+    text: 'Your account details and what you save: protocols, log entries and saved calculations. No advertising and no analytics trackers.',
   },
   {
-    icon: '🚫',
-    label: 'No medical care',
-    text: 'Peptora is for research and educational use only. We do not provide diagnosis, treatment, or clinical monitoring.',
+    icon: ShieldCheck,
+    label: 'Not sold, not shared for ads',
+    text: 'Your information is used to run Peptora for you. It is never sold and never given to advertisers.',
   },
   {
-    icon: '🛡️',
-    label: 'Trusted processors',
-    text: 'We use service providers such as hosting, database, email, payment, and AI infrastructure providers to run Peptora.',
+    icon: Trash2,
+    label: 'Delete it yourself',
+    text: 'You can delete your account, and everything stored with it, from Profile in the app or on the web.',
   },
 ]
 
-const sections = [
+// Sections 1 to 8, then Account Deletion as section 9, then the rest.
+const before = [
   {
     num: '1',
     title: 'Who We Are',
     body: [
-      'Peptora is a research intelligence platform for peptide researchers. The app includes tools such as a dose calculator, peptide encyclopedia, vendor and regulatory research boards, AI research assistant, stack checker, protocol finder, cycle tracker, subscriptions, and account dashboard.',
-      'This Privacy Policy explains how Peptora collects, uses, shares, and protects information when you use peptora.app, Peptora web features, and related services that link to this policy.',
+      'Peptora is a tracking and reference tool for peptides. It records the schedule you set for yourself and keeps your log. It also includes a reference library that cites its sources and a reconstitution calculator that works on numbers you enter. Peptora does not recommend doses and does not sell peptides or medication.',
+      'This Privacy Policy explains what information Peptora collects, how it is used, who processes it, and the choices you have. It applies to peptora.io, to the Peptora apps for iPhone and Android, and to any other Peptora service that links to this policy.',
     ],
   },
   {
     num: '2',
     title: 'Information We Collect',
     body: [
-      'Account information: email address, password credentials, optional full name, verification status, plan type, account settings, and authentication session information.',
-      'Usage and research-tool information: calculator inputs and results, calculator usage counts, calculator history for eligible accounts, feature access events, dashboard data, and information you enter into tools such as the cycle tracker, stack checker, protocol finder, or AI research assistant.',
-      'AI interaction information: prompts, conversation history sent for context, generated responses, and related metadata needed to provide AI-powered features.',
-      'Payment information: your submitted payment reference, the amount and date you report, the name on the sending account, any note you add, and the receipt file you upload as proof of payment. Peptora has no card processor and never receives or stores card numbers.',
-      'Receipt files are proof-of-payment documents you choose to upload. They commonly contain your name, partial bank account or transaction identifiers, and the amount transferred. They are stored in private object storage, are readable only by Peptora administrators reviewing your payment, and are never publicly accessible.',
-      'Licence information: whether your account holds a licence, when it was granted, and whether access has been withdrawn.',
-      'Device and technical information: browser type, device characteristics, operating system, language, timezone, approximate screen details, IP-derived request metadata, cookies, session tokens, logs, and a hashed device fingerprint used to enforce one free trial per device, prevent abuse, and protect security.',
-      'Communications: messages you send to us, verification emails, password reset requests, support inquiries, and transactional email delivery information.',
+      'Account information: your email address, your name if you give one, a hashed version of your password (we never store the password itself), whether your email is verified, when you accepted the terms, and when you last signed in.',
+      'What you save in Peptora: your protocols (the name, the vial amount, the water volume, the amount and schedule you set, and any notes), your log entries (the amount, the time and any note you add), and calculations you choose to save. You decide what goes into these fields.',
+      'Purchases made in the iPhone app: Peptora Pro is sold there as an App Store subscription. Apple handles the payment. Peptora receives from Apple a signed record of the purchase: which plan was bought, when it started, when it expires or renews, and a transaction identifier. Peptora never receives your card details or your Apple ID email address.',
+      'Purchases made on the web: your submitted payment reference, the amount and date you report, the name on the sending account, any note you add, and the receipt file you upload as proof of payment. Peptora has no card processor on the web and never receives or stores card numbers. Receipt files are kept in private storage, can be read only by the Peptora administrators who review your payment, and are never publicly accessible.',
+      'Access information: whether your account has Peptora Pro, how it was obtained (a trial, an App Store subscription or a purchase on the web), and when it ends.',
+      'Device and technical information: a hashed device fingerprint that is used to give each device one trial and to prevent abuse, a hashed form of your IP address recorded with sign-in and security events, the type of device or browser you use, and the session cookies or tokens that keep you signed in.',
+      'Notifications: if you allow notifications in the mobile app, a push token for your device, so that a reminder can be delivered to it. You can turn notifications off in your device settings at any time.',
+      'Communications: messages you send us, and the emails we send you to verify your address, reset your password or tell you about your account.',
     ],
   },
   {
     num: '3',
     title: 'How We Use Information',
     body: [
-      'We use information to create and secure accounts, verify email addresses, authenticate sessions, provide free and Pro features, maintain usage limits, process subscriptions, show calculator history, and deliver the product experience you request.',
-      'We also use information to operate AI features, troubleshoot errors, prevent fraud or abuse, enforce plan access, improve product reliability, communicate important account or billing updates, and comply with legal obligations.',
-      'Peptora is not a healthcare provider. Information entered into Peptora should not be treated as medical records, and Peptora should not be used for emergencies, diagnosis, treatment decisions, or patient care.',
+      'We use this information to create and secure your account, to keep you signed in, to store and show you what you have saved, to work out whether your account has Peptora Pro, to send the emails and notifications described above, to prevent fraud and abuse, and to meet legal obligations.',
+      'Peptora does not use your information for advertising, does not build advertising profiles, and does not use advertising or analytics trackers. Peptora has no AI features, and nothing you enter is sent to an AI provider.',
+      'Peptora is not a healthcare provider. What you enter into Peptora is your own record. It is not a medical record, and Peptora should not be used for emergencies, diagnosis or treatment decisions.',
     ],
   },
   {
     num: '4',
-    title: 'Cookies, Sessions, and Device Fingerprints',
+    title: 'Cookies, Sessions and Device Fingerprints',
     body: [
-      'Peptora uses cookies and similar technologies to keep you signed in, protect sessions, remember authentication state, and support account security. The app uses httpOnly authentication cookies for access and refresh tokens.',
-      'Peptora also generates a hashed device fingerprint from browser and device signals such as user agent, screen size, timezone, language, and hardware concurrency. This fingerprint is recorded when a free trial is granted, so that each device receives one trial, and it helps reduce abuse.',
+      'On the web, Peptora uses cookies only to keep you signed in and to protect your session. They are httpOnly authentication cookies and are not used for advertising or tracking. The mobile app stores its sign-in tokens in the secure storage provided by your phone.',
+      'Peptora generates a hashed device fingerprint from signals such as the browser or device model, the system version, screen size, timezone and language. It is recorded when a trial is granted, so that each device receives one trial, and it helps reduce abuse. It is not used to follow you across other sites or apps.',
     ],
   },
   {
     num: '5',
     title: 'How We Share Information',
     body: [
-      'We do not sell your personal information. We share information with service providers that help us run Peptora, including cloud hosting, database, object storage, authentication, email delivery, analytics or logging, and AI infrastructure providers.',
-      'Payments are verified manually by Peptora administrators. There is no third-party payment processor involved, so no payment intermediary receives your information. Receipt files you upload are not shared with anyone outside Peptora. AI-powered requests may be processed by AI model providers, including Anthropic, to generate research responses.',
-      'We may also disclose information when required by law, to protect Peptora or users, to investigate abuse, to enforce our terms, or as part of a merger, acquisition, financing, or business transfer.',
+      'We do not sell your personal information. We share it only with the service providers that run Peptora for us, and only as far as each one needs: Railway hosts the API, the database and the private file storage; Vercel hosts the website; Resend delivers our emails; and Expo, together with Apple and Google, delivers push notifications to your device.',
+      'When you buy Peptora Pro in the iPhone app, the purchase is made with Apple under Apple\'s own terms and privacy policy. Apple tells us about the purchase as described in section 2. Web payments are verified by hand by Peptora administrators, and receipt files are not shared with anyone outside Peptora. If you pay through a payment link we send you, that payment is handled by the provider named on the payment page.',
+      'We may also disclose information when the law requires it, to protect Peptora or its users, to investigate abuse, or as part of a merger, acquisition or other transfer of the business.',
     ],
   },
   {
     num: '6',
     title: 'Data Retention',
     body: [
-      'We keep information for as long as needed to provide Peptora, maintain your account, comply with legal or tax obligations, resolve disputes, enforce agreements, and protect platform security.',
-      'Calculator history, payment records, audit logs, authentication records, and AI feature data may be retained for different periods depending on product, security, billing, and legal needs. We may delete or de-identify information when it is no longer needed.',
-      'Receipt files are deleted twelve months after your payment is reviewed. The payment record itself — the amount, reference and decision — is kept for longer, as the record of why your account holds a licence.',
+      'We keep your information for as long as you have an account. When you delete your account, everything described in section 9 is deleted at once.',
+      'Receipt files for web payments are deleted twelve months after the payment is reviewed, or sooner if you delete your account.',
+      'Email verification codes and password reset links expire shortly after they are issued.',
     ],
   },
   {
     num: '7',
     title: 'Security',
     body: [
-      'We use technical and organizational safeguards designed to protect information, including encrypted transport, secure authentication cookies, access controls, and provider security controls. No internet service can guarantee absolute security.',
-      'You are responsible for keeping your password confidential and for using a secure device and browser when accessing Peptora.',
+      'We use technical and organisational safeguards to protect your information, including encrypted connections, hashed passwords, secure session cookies and access controls. No internet service can guarantee absolute security.',
+      'You are responsible for keeping your password confidential and for using a secure device when you access Peptora.',
     ],
   },
   {
     num: '8',
     title: 'Your Choices and Rights',
     body: [
-      'You may access, update, or delete certain account information by using your account dashboard or contacting us. You may cancel subscriptions through the billing portal when available.',
-      'Depending on where you live, you may have rights to request access, correction, deletion, portability, restriction, objection, or withdrawal of consent. We may need to verify your identity before fulfilling a request.',
-      'You can control cookies through your browser. Blocking cookies may prevent login, subscriptions, or other core features from working correctly.',
+      'You can see and change what you have saved inside Peptora, and you can delete your account yourself as described in section 9. An App Store subscription is managed and cancelled in your App Store account settings, not by Peptora.',
+      'Depending on where you live, you may have the right to ask for access to your information, for it to be corrected, deleted or exported, or to object to or restrict how it is used. To make a request, email us at the address in section 13. We may need to verify your identity first.',
+      'You can control cookies through your browser. Blocking the sign-in cookies will prevent you from logging in on the web.',
     ],
   },
+]
+
+const after = [
   {
     num: '10',
     title: 'International Users',
     body: [
       'Peptora may process and store information in countries other than your own. Those countries may have data protection laws that differ from the laws where you live.',
-      'Where required, we rely on appropriate legal mechanisms for international transfers, such as contractual protections with service providers.',
+      'Where required, we rely on appropriate legal mechanisms for international transfers, such as contractual protections with our service providers.',
     ],
   },
   {
     num: '11',
     title: 'Children',
     body: [
-      'Peptora is not intended for children under 18. We do not knowingly collect personal information from children. If you believe a child has provided information to Peptora, contact us so we can take appropriate action.',
+      'Peptora is for adults. It is not intended for anyone under 18, and we do not knowingly collect personal information from anyone under 18. If you believe someone under 18 has given information to Peptora, contact us so that we can delete it.',
     ],
   },
   {
     num: '12',
     title: 'Changes to This Policy',
     body: [
-      'We may update this Privacy Policy from time to time. If changes are material, we will take reasonable steps to notify users, such as updating the effective date, posting a notice, or sending an account email.',
-    ],
-  },
-  {
-    num: '13',
-    title: 'Contact',
-    body: [
-      'For privacy questions or requests, contact Peptora support through the contact method provided in the app or by emailing the address listed on Peptora communications.',
+      'We may update this Privacy Policy from time to time. When a change is material, we will take reasonable steps to tell you, such as updating the effective date, posting a notice, or sending an email to your account address.',
     ],
   },
 ]
 
+const DELETE_STEPS = [
+  {
+    where: 'In the iPhone or Android app',
+    steps: 'Open Profile, choose Delete account, enter your password, then press and hold the delete button until it completes.',
+  },
+  {
+    where: 'On the web',
+    steps: 'Log in at peptora.io, open Profile, choose Delete account and confirm with your password.',
+  },
+]
+
+function Section({ section }) {
+  return (
+    <section id={`section-${section.num}`}>
+      <h2>
+        <span className="privacy-section-num">{section.num}.</span>
+        {section.title}
+      </h2>
+      {section.body.map((paragraph, i) => (
+        <p key={i}>{paragraph}</p>
+      ))}
+    </section>
+  )
+}
+
 export default function PrivacyPolicyPage() {
   return (
-    <>
-
-      <main className="privacy-page">
-
-        {/* Hero */}
-        <section className="privacy-hero">
-          <div>
-            <div className="privacy-eyebrow">
-              <span className="privacy-eyebrow-dot" />
-              PRIVACY POLICY
-            </div>
-            <h1>Your data,<br />clearly explained.</h1>
-            <p>
-              How Peptora handles information across accounts, subscriptions,
-              calculator tools, AI research features, and product security.
-            </p>
-            <div className="privacy-meta">Effective date: {effectiveDate}</div>
+    <main className="privacy-page">
+      <section className="privacy-hero">
+        <div>
+          <div className="privacy-eyebrow">
+            <span className="privacy-eyebrow-dot" />
+            PRIVACY POLICY
           </div>
+          <h1>
+            Your data,
+            <br />
+            clearly explained.
+          </h1>
+          <p>
+            What Peptora stores, why it stores it, who processes it, and how
+            you delete it.
+          </p>
+          <div className="privacy-meta">Effective date: {effectiveDate}</div>
+        </div>
 
-          <div className="privacy-summary" aria-label="Privacy highlights">
-            {highlights.map((item) => (
-              <div className="privacy-summary-item" key={item.label}>
-                <div className="privacy-summary-header">
-                  <span className="privacy-summary-icon">{item.icon}</span>
-                  <span className="privacy-summary-label">{item.label}</span>
-                </div>
-                <p>{item.text}</p>
+        <div className="privacy-summary" aria-label="Privacy highlights">
+          {highlights.map(({ icon: Icon, label, text }) => (
+            <div className="privacy-summary-item" key={label}>
+              <div className="privacy-summary-header">
+                <Icon size={16} aria-hidden="true" className="shrink-0 text-teal" />
+                <span className="privacy-summary-label">{label}</span>
+              </div>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="privacy-notice">
+        <div className="privacy-notice-label">A tracking and reference tool</div>
+        <p>
+          Peptora records the schedule you set. It does not recommend doses,
+          it is not medical advice and it is not a healthcare provider. Do not
+          enter emergency, clinical or patient-care information into the app.
+        </p>
+      </section>
+
+      <article className="privacy-prose">
+        {before.map((section) => (
+          <Section key={section.num} section={section} />
+        ))}
+
+        <section id="account-deletion">
+          <h2>
+            <span className="privacy-section-num">9.</span>
+            Account Deletion
+          </h2>
+          <p>
+            You can permanently delete your Peptora account at any time,
+            yourself, without contacting us.
+          </p>
+
+          <div className="my-[18px] rounded-[14px] border border-danger/25 bg-danger/6 p-[22px]">
+            <p className="!mb-4 !text-[13px] !font-semibold !text-tx">
+              How to delete your account
+            </p>
+
+            {DELETE_STEPS.map(({ where, steps }, i) => (
+              <div key={where} className="mb-3 flex items-start gap-3">
+                <span
+                  aria-hidden="true"
+                  className="mt-px flex size-[22px] shrink-0 items-center justify-center rounded-full border border-danger/30 bg-danger/15 font-mono text-[11px] text-danger"
+                >
+                  {i + 1}
+                </span>
+                <span className="text-sm leading-[1.65] text-tx2">
+                  <strong className="font-semibold text-tx">{where}.</strong> {steps}
+                </span>
               </div>
             ))}
-          </div>
-        </section>
 
-        {/* Medical disclaimer notice */}
-        <section className="privacy-notice">
-          <div className="privacy-notice-label">⚕️ &nbsp;Research and educational use only</div>
+            <p className="!mb-0 mt-1 border-t border-danger/15 pt-4 !text-[13.5px] !leading-[1.7]">
+              If you cannot sign in, email{' '}
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-tx">
+                {SUPPORT_EMAIL}
+              </a>{' '}
+              from the address on the account with the subject line
+              &quot;Account deletion request&quot;. We will delete the account within 30 days.
+            </p>
+          </div>
+
           <p>
-            Peptora is not medical advice and is not a healthcare provider.
-            Do not enter emergency, clinical, or patient-care information into the app.
+            Deleting your account erases your profile, email address and
+            login, every protocol and log entry, your saved calculations, your
+            notification token, any web payment records and receipt files, and
+            the link between your account and any App Store subscription. A
+            deleted account cannot be recovered.
+          </p>
+          <p>
+            Two things remain, and neither identifies you: the hashed device
+            fingerprint that records that a device has already had its trial,
+            and an entry in our security log that an account was deleted, with
+            no account attached. If our hosting provider keeps routine backups,
+            deleted data can remain in them until those backups expire.
+          </p>
+          <p>
+            Deleting your account does not cancel an App Store subscription,
+            because only you can do that. Cancel it in your App Store account
+            settings so that Apple does not charge you again.
           </p>
         </section>
 
-        {/* Main prose */}
-        <article className="privacy-prose">
-          {sections.slice(0, 8).map((section) => (
-            <section key={section.num} id={`section-${section.num}`}>
-              <h2>
-                <span className="privacy-section-num">{section.num}.</span>
-                {section.title}
-              </h2>
-              {section.body.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </section>
-          ))}
+        {after.map((section) => (
+          <Section key={section.num} section={section} />
+        ))}
 
-          {/* Account Deletion — standalone section with callout */}
-          <section id="account-deletion">
-            <h2>
-              <span className="privacy-section-num">9.</span>
-              Account Deletion
-            </h2>
-            <p>
-              You have the right to permanently delete your Peptora account and all associated personal data at any time.
-            </p>
+        <section id="section-13">
+          <h2>
+            <span className="privacy-section-num">13.</span>
+            Contact
+          </h2>
+          <p>
+            For privacy questions or requests, email{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-teal">
+              {SUPPORT_EMAIL}
+            </a>{' '}
+            or use the{' '}
+            <Link href="/support" className="text-teal">
+              support page
+            </Link>
+            .
+          </p>
+        </section>
+      </article>
 
-            {/* Callout box */}
-            <div style={{
-              background: 'rgba(239,68,68,0.06)',
-              border: '1px solid rgba(239,68,68,0.22)',
-              borderRadius: '14px',
-              padding: '22px 24px',
-              margin: '18px 0',
-            }}>
-              <div style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: 'var(--tx)',
-                marginBottom: '18px',
-              }}>
-                How to delete your account
-              </div>
-
-              {/* Steps */}
-              {[
-                { n: '1', text: <span>Log in and open your <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Account Dashboard</strong> — tap your name in the top navigation.</span> },
-                { n: '2', text: <span>Scroll to the <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Danger Zone</strong> section and select <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>Delete my account</strong>.</span> },
-                { n: '3', text: <span>Confirm the deletion when prompted. Your account and data will be permanently removed.</span> },
-              ].map(({ n, text }) => (
-                <div key={n} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-                  <div style={{
-                    flexShrink: 0,
-                    width: '22px', height: '22px',
-                    borderRadius: '50%',
-                    background: 'rgba(239,68,68,0.15)',
-                    border: '1px solid rgba(239,68,68,0.30)',
-                    color: '#ef4444',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginTop: '1px',
-                  }}>
-                    {n}
-                  </div>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--tx2)', lineHeight: 1.65 }}>
-                    {text}
-                  </span>
-                </div>
-              ))}
-
-              {/* Email fallback */}
-              <div style={{
-                paddingTop: '16px',
-                borderTop: '1px solid rgba(239,68,68,0.14)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '13.5px',
-                color: 'var(--tx2)',
-                lineHeight: 1.7,
-                marginTop: '4px',
-              }}>
-                Alternatively, email <strong style={{ color: 'var(--tx)', fontWeight: 600 }}>support@peptora.app</strong> with the subject line{' '}
-                <em style={{ color: 'var(--tx)' }}>&quot;Account deletion request&quot;</em>{' '}
-                and include your registered email address. We will process your request within 30 days.
-              </div>
-            </div>
-
-            <p>
-              Deleting your account will permanently erase your profile, calculator history, cycle logs, AI conversation history, and all other personal data linked to your account. Subscription records may be retained for legal and billing compliance as described in Section 7. Deleted accounts cannot be recovered.
-            </p>
-          </section>
-
-          {sections.slice(8).map((section) => (
-            <section key={section.num} id={`section-${section.num}`}>
-              <h2>
-                <span className="privacy-section-num">{section.num}.</span>
-                {section.title}
-              </h2>
-              {section.body.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </section>
-          ))}
-        </article>
-
-        {/* Footer nav */}
-        <div className="privacy-footer-nav">
-          <Link href="/">← Back to Peptora</Link>
-          <Link href="/pricing">View pricing</Link>
-        </div>
-
-      </main>
-    </>
+      <div className="privacy-footer-nav">
+        <Link href="/">Back to Peptora</Link>
+        <Link href="/support">Contact support</Link>
+      </div>
+    </main>
   )
 }

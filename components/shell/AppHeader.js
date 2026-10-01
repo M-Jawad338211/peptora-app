@@ -8,9 +8,9 @@ import { useSession } from '@/lib/auth/session'
 
 /**
  * Sticky top bar. Carries the screen title (matching the native stack header)
- * and, on mobile only, shortcuts to the two screens that have no tab slot.
- * Without these, Calculator and Tracker would be as unreachable on the web as
- * they are in the native build.
+ * and, on mobile only, shortcuts to the screens that have no tab slot for an
+ * account with Pro. An account without Pro already has the calculator in its
+ * tab bar, and the tracker is not open to it.
  */
 export default function AppHeader() {
   const pathname = usePathname()
@@ -19,12 +19,10 @@ export default function AppHeader() {
   const { user } = useSession()
   const hasAccess = !!user?.access?.has_access
 
-  // Both shortcuts point behind the licence gate, so they are dropped for a
-  // user without one rather than offered as a route back to the paywall.
   const shortcuts = hasAccess
     ? [
-        { href: '/app/calculator', label: 'Dose calculator', icon: Calculator },
-        { href: '/app/tracker', label: 'Cycle tracker', icon: ChartLine },
+        { href: '/app/calculator', label: 'Reconstitution calculator', icon: Calculator },
+        { href: '/app/tracker', label: 'Log and history', icon: ChartLine },
       ].filter((s) => !pathname.startsWith(s.href))
     : []
 

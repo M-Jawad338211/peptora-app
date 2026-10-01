@@ -70,8 +70,9 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
     staleTime: 10 * 60_000,
   })
 
-  // No single "reference dose" exists for a whole blend — nothing to prefill
-  // the unit/range from — so defaults only ever come from a selected peptide.
+  // Only the unit comes from the library entry. The dose itself is whatever
+  // the user types: Peptora records the schedule they set and never fills in
+  // an amount.
   const defaults = useMemo(
     () => (peptide ? protocolDefaultsFromPeptide(peptide) : null),
     [peptide]
@@ -108,7 +109,6 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
       unit,
       target_dose: rawDose,
       syringe_type: syringeType,
-      suggested_frequency: defaults?.suggested_frequency ?? null,
     }
 
     if (reconstituted) {
@@ -149,7 +149,7 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
       waterMl: water,
       dilution: d,
     }
-  }, [dVial, dBac, dDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide, stack, defaults])
+  }, [dVial, dBac, dDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide, stack])
 
   const dirty =
     !!peptideId || !!stackId || !!vialMg || !!targetDose || !!bacMl || !!notes || !!frequency
@@ -169,10 +169,10 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
 
     const found = {}
     const vial = parseFloat(vialMg)
-    if (!vial || vial <= 0) found.vialMg = 'Enter the vial strength in mg.'
-    if (!doseMcg || doseMcg <= 0) found.targetDose = 'Enter a target dose.'
+    if (!vial || vial <= 0) found.vialMg = 'Enter the vial amount in mg.'
+    if (!doseMcg || doseMcg <= 0) found.targetDose = 'Enter the dose you have set.'
     if (reconstituted && (!parseFloat(bacMl) || parseFloat(bacMl) <= 0)) {
-      found.bacMl = 'Enter how much BAC water was added.'
+      found.bacMl = 'Enter how much water was added to the vial.'
     }
     if (durationWeeks && (!Number.isInteger(+durationWeeks) || +durationWeeks <= 0)) {
       found.durationWeeks = 'Enter a whole number of weeks.'
@@ -216,12 +216,15 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
         </Button>
       </div>
 
-      <ResearchBanner />
+      <ResearchBanner>
+        Peptora records the schedule you set. It does not recommend doses, and
+        it is not medical advice.
+      </ResearchBanner>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="card space-y-4 p-4">
           <ChipGroup
-            label="Target"
+            label="Library entry (optional)"
             value={targetType}
             onChange={(v) => {
               setTargetType(v)
@@ -248,18 +251,18 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
               setLabelTouched(true)
               setLabelInput(e.target.value)
             }}
-            placeholder="e.g. Morning BPC-157"
+            placeholder="Name this protocol"
           />
 
           <NumberInput
-            label="Vial strength"
+            label="Vial amount"
             suffix="mg"
             value={vialMg}
             onChange={(e) => {
               setVialMg(e.target.value)
               setErrors((p) => ({ ...p, vialMg: undefined }))
             }}
-            placeholder="e.g. 5"
+            placeholder="0"
           />
           {errors.vialMg && (
             <p role="alert" className="text-xs text-danger-text">{errors.vialMg}</p>
@@ -278,14 +281,14 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
           {reconstituted && (
             <>
               <NumberInput
-                label="BAC water added"
+                label="Water added"
                 suffix="mL"
                 value={bacMl}
                 onChange={(e) => {
                   setBacMl(e.target.value)
                   setErrors((p) => ({ ...p, bacMl: undefined }))
                 }}
-                placeholder="e.g. 2"
+                placeholder="0"
               />
               {errors.bacMl && (
                 <p role="alert" className="text-xs text-danger-text">{errors.bacMl}</p>
@@ -295,17 +298,17 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
 
           <div>
             <NumberInput
-              label="Target dose"
+              label="Your dose"
               value={targetDose}
               onChange={(e) => {
                 setTargetDose(e.target.value)
                 setErrors((p) => ({ ...p, targetDose: undefined }))
               }}
-              placeholder="e.g. 250"
+              placeholder="0"
             />
             <div className="mt-2">
               <ChipGroup
-                label="Dose unit"
+                label="Unit"
                 options={availableUnits}
                 value={unit}
                 onChange={(u) => {
@@ -378,7 +381,12 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
           </ul>
         )}
 
-        <ResultsPanel result={result} peptideName={peptide?.name ?? stack?.name} />
+        <ResultsPanel
+          result={result}
+          peptideName={peptide?.name ?? stack?.name}
+          vialMg={parseFloat(dVial)}
+          waterMl={waterMl}
+        />
 
         {submitError && (
           <p role="alert" className="mt-3 text-[13px] text-danger-text">{submitError}</p>
@@ -386,7 +394,7 @@ export default function ProtocolForm({ initialPeptideId = null, initialStackId =
 
         <div className="mt-4">
           <Button type="submit" disabled={save.isPending} size="lg" fullWidth>
-            {save.isPending ? 'Saving…' : 'Save protocol'}
+            {save.isPending ? 'Saving' : 'Save protocol'}
           </Button>
         </div>
       </form>

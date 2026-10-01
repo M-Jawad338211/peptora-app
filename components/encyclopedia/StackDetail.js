@@ -26,7 +26,7 @@ export default function StackDetail({ stack: st }) {
         className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-teal no-underline"
       >
         <ArrowLeft size={14} aria-hidden="true" />
-        Encyclopedia
+        Library
       </Link>
 
       <header className="card mb-2.5 p-4">
@@ -56,9 +56,12 @@ export default function StackDetail({ stack: st }) {
       {st.stack_type === 'commercial_blend' && (
         <Section title="Commonly Documented Composition" defaultOpen>
           <p className="text-sm leading-6 text-tx">
-            {st.components?.map((c) => c.ratio_parts).join(' : ')}
-            {'  —  '}
-            {st.components?.map((c) => c.peptide_name).join(' : ')}
+            <span className="font-mono">
+              {st.components?.map((c) => c.ratio_parts).join(' : ')}
+            </span>
+            <span className="ml-3 text-tx2">
+              {st.components?.map((c) => c.peptide_name).join(' : ')}
+            </span>
           </p>
           {st.ratio_source_note && <Body className="mt-2">{st.ratio_source_note}</Body>}
           <Divider />
@@ -115,7 +118,7 @@ export default function StackDetail({ stack: st }) {
                 <div key={j} className="mt-2 ml-2">
                   <p className="text-[12px] font-semibold text-tx2">{dr.context}</p>
                   <dl>
-                    <Row label="Dose" value={formatDoseRange(dr)} />
+                    <Row label="Reported" value={formatDoseRange(dr)} />
                     <Row label="Frequency" value={dr.frequency} />
                   </dl>
                 </div>
@@ -138,12 +141,12 @@ export default function StackDetail({ stack: st }) {
       )}
 
       {st.stack_references?.length > 0 && (
-        <Section title="References" count={st.stack_references.length}>
+        <Section title="Sources" count={st.stack_references.length} defaultOpen>
           <ol className="space-y-3">
             {st.stack_references.map((ref) => (
               <li key={ref.ref_id} className="flex gap-3">
-                <span className="w-7 shrink-0 font-mono text-[12px] font-bold text-teal">
-                  [{ref.ref_id}]
+                <span className="w-5 shrink-0 font-mono text-[12px] font-bold text-teal">
+                  {ref.ref_id}
                 </span>
                 <div className="min-w-0">
                   {ref.url ? (
@@ -178,7 +181,7 @@ export default function StackDetail({ stack: st }) {
       <div className="mt-4">
         <Button href={`/app/protocols/new?stack=${st.id}`} size="lg" fullWidth>
           <FlaskConical size={16} aria-hidden="true" />
-          Add as protocol
+          Track this in a protocol
         </Button>
       </div>
     </article>

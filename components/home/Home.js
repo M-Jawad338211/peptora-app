@@ -98,7 +98,7 @@ export default function Home() {
             {firstName ? `, ${firstName}` : ''}
           </h2>
           <p className="text-[13px] text-tx3-body">
-            {user ? "Here's your protocol overview" : 'Peptide research tools'}
+            {user ? 'Your protocols at a glance' : 'Peptide tracking and reference'}
           </p>
         </div>
         {user && (
@@ -111,7 +111,7 @@ export default function Home() {
         )}
       </header>
 
-      {user && (
+      {hasAccess && (
         <>
           {stats.isError ? (
             // Native has no error branch here, so a failure renders three
@@ -147,41 +147,41 @@ export default function Home() {
         </>
       )}
 
-      <h2 className="eyebrow mb-2.5">Quick actions</h2>
+      <h2 className="eyebrow mb-2.5">Go to</h2>
       <div className="mb-6 space-y-2">
-        <QuickAction
-          href="/app/calculator"
-          icon={Calculator}
-          label="Dose calculator"
-          desc="Reconstitution and syringe dosing"
-          accent="#00d68f"
-        />
         <QuickAction
           href="/app/protocols"
           icon={FlaskConical}
           label="Protocols"
-          desc="View and manage your peptide protocols"
-          accent="#4a9eff"
+          desc="Your vials, the schedule you set, and your log"
+          accent="#00d68f"
         />
         <QuickAction
           href="/app/tracker"
           icon={ChartLine}
-          label="Cycle tracker"
-          desc="Log doses and review your history"
+          label="Tracker"
+          desc="Log an entry and review your history"
           accent="#ffd32a"
         />
         <QuickAction
           href="/app/encyclopedia"
           icon={BookOpen}
-          label="Encyclopedia"
-          desc="Browse the peptide knowledge base"
+          label="Library"
+          desc="Reference entries with their sources"
+          accent="#4a9eff"
+        />
+        <QuickAction
+          href="/app/calculator"
+          icon={Calculator}
+          label="Calculator"
+          desc="Reconstitution arithmetic on your own numbers"
           accent="#a78bfa"
         />
       </div>
 
-      {user && logs.data?.length > 0 && (
+      {hasAccess && logs.data?.length > 0 && (
         <>
-          <h2 className="eyebrow mb-2.5">Recent logs</h2>
+          <h2 className="eyebrow mb-2.5">Recent log entries</h2>
           <ul className="card mb-6 divide-y divide-hairline px-4">
             {logs.data.slice(0, 5).map((log) => (
               <li key={log.id} className="flex items-center gap-2.5 py-2.5">
@@ -210,15 +210,14 @@ export default function Home() {
             aria-hidden="true"
             className="mx-auto mb-3 text-teal"
           />
-          <h2 className="mb-1.5 text-lg font-bold text-tx">
-            Your trial has ended
-          </h2>
+          <h2 className="mb-1.5 text-lg font-bold text-tx">Peptora Pro</h2>
           <p className="mb-5 text-sm leading-6 text-tx3-body">
-            One payment unlocks everything, permanently. Nothing you saved has
-            gone anywhere.
+            Protocols, the tracker and your history are part of Peptora Pro.
+            Nothing you saved has gone anywhere, and the library and the
+            calculator stay free.
           </p>
           <Button href="/app/billing" fullWidth>
-            Unlock Peptora
+            See Peptora Pro
           </Button>
         </div>
       )}
@@ -235,9 +234,8 @@ export default function Home() {
             Track your peptide protocols
           </h2>
           <p className="mb-5 text-sm leading-6 text-tx3-body">
-            Create an account for 14 days of full access — protocols, dose
-            logging and unlimited calculations, with no payment details
-            required. The encyclopedia is always free.
+            Create an account to save protocols, log entries and keep your
+            history. The library and the calculator are free.
           </p>
           <Button href="/app/auth/signup" fullWidth>
             Get started
@@ -251,9 +249,10 @@ export default function Home() {
         </div>
       )}
 
-      <p className="text-[11px] leading-4 text-tx3-body italic">
-        Peptora is for research and educational use only. Nothing here
-        constitutes medical advice.
+      <p className="text-[11px] leading-4 text-tx3-body">
+        Peptora records the schedule you set. It does not recommend doses, it
+        does not sell peptides or medication, and nothing here is medical
+        advice.
       </p>
     </div>
   )

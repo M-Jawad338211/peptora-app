@@ -7,12 +7,14 @@ import {
   fdaColor,
   formatDoseRange,
   referenceHref,
+  weeksText,
 } from '@/lib/peptide-format'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Section from './Section'
 import Row, { Divider, Subheading, Body } from './Row'
 import ClaimList from './ClaimList'
+import Cites from './Cites'
 
 /**
  * Full peptide entry, ported from the native DetailView
@@ -31,7 +33,7 @@ export default function PeptideDetail({ peptide: p }) {
         className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-teal no-underline"
       >
         <ArrowLeft size={14} aria-hidden="true" />
-        Encyclopedia
+        Library
       </Link>
 
       {/* Header */}
@@ -65,6 +67,14 @@ export default function PeptideDetail({ peptide: p }) {
             ))}
           </ul>
         )}
+
+        {p.references?.length > 0 && (
+          <p className="mt-3 text-[12px] leading-5 text-tx3-body">
+            Written from {p.references.length} cited source
+            {p.references.length === 1 ? '' : 's'}, listed under Sources below.
+            Reference reading, not medical advice.
+          </p>
+        )}
       </header>
 
       <Section title="Overview" defaultOpen>
@@ -80,6 +90,7 @@ export default function PeptideDetail({ peptide: p }) {
             <Divider />
             <Subheading>Mechanism of Action</Subheading>
             <Body>{p.mechanism_of_action}</Body>
+            <Cites ids={p.mechanism_citation_refs} references={p.references} />
           </>
         )}
       </Section>
@@ -135,7 +146,7 @@ export default function PeptideDetail({ peptide: p }) {
             <Row label="Routes" value={p.routes.map(fmt).join(', ')} />
           )}
           <Row
-            label="Default Dose Unit"
+            label="Usual Unit"
             value={p.default_dose_unit?.toUpperCase()}
           />
         </dl>
@@ -188,6 +199,7 @@ export default function PeptideDetail({ peptide: p }) {
           <Row label="Scheduled / Controlled" value={p.scheduled_controlled} />
           <Row label="Research Only" value={p.research_only} />
         </dl>
+        <Cites ids={p.regulatory_citation_refs} references={p.references} />
       </Section>
 
       {p.benefits?.length > 0 && (
@@ -217,7 +229,12 @@ export default function PeptideDetail({ peptide: p }) {
       )}
 
       {p.dose_ranges?.length > 0 && (
-        <Section title="Studied Dose Ranges" count={p.dose_ranges.length}>
+        <Section title="Dose ranges reported in the literature" count={p.dose_ranges.length}>
+          <p className="mb-3 text-[12px] leading-5 text-tx3-body">
+            What the cited sources report. Peptora does not recommend a dose,
+            and these figures are never copied into the calculator or a
+            protocol.
+          </p>
           <ul className="space-y-3">
             {p.dose_ranges.map((dr, i) => (
               <li
@@ -226,7 +243,7 @@ export default function PeptideDetail({ peptide: p }) {
               >
                 <p className="text-sm font-semibold text-tx">{dr.context}</p>
                 <dl>
-                  <Row label="Dose" value={formatDoseRange(dr)} />
+                  <Row label="Reported" value={formatDoseRange(dr)} />
                   <Row label="Route" value={fmt(dr.route)} />
                   <Row label="Frequency" value={dr.frequency} />
                 </dl>
@@ -235,17 +252,15 @@ export default function PeptideDetail({ peptide: p }) {
                     {dr.note}
                   </p>
                 )}
+                <Cites ids={dr.citation_refs} references={p.references} />
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-[12px] leading-5 text-tx3-body italic">
-            Studied / reported ranges — not a recommendation.
-          </p>
         </Section>
       )}
 
       {p.protocols?.length > 0 && (
-        <Section title="Protocols" count={p.protocols.length}>
+        <Section title="Protocols described in the literature" count={p.protocols.length}>
           <ul className="space-y-3">
             {p.protocols.map((proto, i) => (
               <li
@@ -266,16 +281,10 @@ export default function PeptideDetail({ peptide: p }) {
                 <dl>
                   <Row
                     label="Duration"
-                    value={
-                      proto.duration_weeks
-                        ? proto.duration_weeks.min === proto.duration_weeks.max
-                          ? `${proto.duration_weeks.min} weeks`
-                          : `${proto.duration_weeks.min}–${proto.duration_weeks.max} weeks`
-                        : null
-                    }
+                    value={weeksText(proto.duration_weeks)}
                   />
                   <Row
-                    label="Dosing"
+                    label="As reported"
                     value={
                       proto.dosing
                         ? [
@@ -299,6 +308,7 @@ export default function PeptideDetail({ peptide: p }) {
                     {proto.disclaimer}
                   </p>
                 )}
+                <Cites ids={proto.citation_refs} references={p.references} />
               </li>
             ))}
           </ul>
@@ -368,7 +378,7 @@ export default function PeptideDetail({ peptide: p }) {
       )}
 
       {p.references?.length > 0 && (
-        <Section title="References" count={p.references.length}>
+        <Section title="Sources" count={p.references.length} defaultOpen>
           <ol className="space-y-3">
             {p.references.map((ref) => {
               const href = referenceHref(ref)
@@ -377,8 +387,8 @@ export default function PeptideDetail({ peptide: p }) {
                 .join(' · ')
               return (
                 <li key={ref.ref_id} className="flex gap-3">
-                  <span className="w-7 shrink-0 font-mono text-[12px] font-bold text-teal">
-                    [{ref.ref_id}]
+                  <span className="w-5 shrink-0 font-mono text-[12px] font-bold text-teal">
+                    {ref.ref_id}
                   </span>
                   <div className="min-w-0">
                     {/* Native renders PMIDs as plain text and never uses
@@ -430,7 +440,7 @@ export default function PeptideDetail({ peptide: p }) {
             pushes the protocol LIST, so the peptide is never carried over. */}
         <Button href={`/app/protocols/new?peptide=${p.id}`} size="lg" fullWidth>
           <FlaskConical size={16} aria-hidden="true" />
-          Add as protocol
+          Track this in a protocol
         </Button>
       </div>
     </article>

@@ -7,16 +7,15 @@ export const metadata = {
 }
 
 /**
- * Signed in, licence not required.
+ * Signed in, Peptora Pro not required.
  *
- * The counterpart to `(shell)`: same chrome, no licence gate. This is what a
- * user without access can still reach — the paywall itself, their payment
- * status, and enough of their profile to identify the account, contact support
- * or log out.
+ * The counterpart to `(shell)`: same chrome, no Pro gate. This is everything
+ * an account without Pro can use: Home, the library and the calculator, which
+ * are free, plus the paywall itself, their payment status, and their profile.
  *
- * Gating these would be the classic manual-billing trap: a user who has just
- * transferred money would have nowhere to tell us about it, and no way to see
- * that we already know.
+ * Gating billing or profile would be the classic manual-billing trap: a user
+ * who has just transferred money would have nowhere to tell us about it, and
+ * no way to see that we already know.
  */
 export default async function OpenLayout({ children }) {
   const user = await getSession()

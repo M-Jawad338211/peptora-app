@@ -1,7 +1,7 @@
 import { TriangleAlert } from 'lucide-react'
 
 /**
- * Engine warnings (dose exceeds vial, draw over one syringe, draw under 2
+ * Engine notes (amount exceeds the vial, draw over one syringe, draw under 2
  * units). role="status" so they are announced as results update.
  */
 export function WarningsCallout({ warnings }) {
@@ -27,26 +27,15 @@ export function WarningsCallout({ warnings }) {
   )
 }
 
-/** Reported dosing frequency for the selected peptide, with its framing. */
-export function FrequencyNote({ frequency }) {
-  if (!frequency) return null
-
+/**
+ * What the calculator and the protocol form are, said once above them.
+ * Neutral on purpose: it is a statement of what the tool does, not a warning.
+ */
+export function ResearchBanner({ children }) {
   return (
-    <div className="mt-4 rounded-[10px] bg-white/3 p-3.5">
-      <p className="eyebrow mb-1 text-[10px]">Reported frequency</p>
-      <p className="text-sm text-tx">{frequency}</p>
-      <p className="mt-1 text-[12px] text-tx3-body italic">
-        Studied / reported range — not a recommendation.
-      </p>
-    </div>
-  )
-}
-
-/** Persistent research-use disclaimer shown above the calculator. */
-export function ResearchBanner() {
-  return (
-    <p className="mb-4 rounded-[10px] border border-danger/20 bg-danger/8 px-3.5 py-3 text-[13px] leading-5 text-danger-soft">
-      For research and educational use only — not medical advice.
+    <p className="mb-4 rounded-[10px] border border-hairline bg-white/4 px-3.5 py-3 text-[13px] leading-5 text-tx2">
+      {children ??
+        'Peptora works on the numbers you enter. It does not recommend doses, and it is not medical advice.'}
     </p>
   )
 }

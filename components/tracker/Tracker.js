@@ -157,7 +157,7 @@ function LogForm() {
           label="Or type a name"
           value={customName}
           onChange={(e) => setCustomName(e.target.value)}
-          placeholder="e.g. Custom blend"
+          placeholder="Name"
         />
       )}
 
@@ -165,7 +165,7 @@ function LogForm() {
         label="Dose"
         value={dose}
         onChange={(e) => setDose(e.target.value)}
-        placeholder="e.g. 250 mcg"
+        placeholder="Amount and unit"
       />
 
       <Field
@@ -186,7 +186,7 @@ function LogForm() {
 
       <Button type="submit" disabled={add.isPending} fullWidth>
         <Plus size={15} aria-hidden="true" />
-        {add.isPending ? 'Adding…' : 'Add log entry'}
+        {add.isPending ? 'Adding' : 'Add log entry'}
       </Button>
     </form>
   )
@@ -200,10 +200,10 @@ export default function Tracker() {
       </p>
 
       <PlanGate
-        authTitle="Log in to use the Cycle Tracker"
+        authTitle="Log in to see your log"
         authSubtitle="Your dose history is saved to your account."
-        title="Subscribe to use the Cycle Tracker"
-        subtitle="Your logged doses are safe — subscribe to add to them and see your history."
+        title="Your log is part of Peptora Pro"
+        subtitle="Your log entries are safe. Peptora Pro lets you add to them and see your history."
       >
         <LogForm />
         <LogList />

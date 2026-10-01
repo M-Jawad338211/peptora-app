@@ -6,7 +6,7 @@ export default function StackNotFound() {
     <EmptyState
       icon={Layers}
       title="Stack not found"
-      body="This entry doesn't exist in the encyclopedia. It may have been renamed or removed."
+      body="This entry doesn't exist in the library. It may have been renamed or removed."
       action={{ label: 'Browse stacks', href: '/app/encyclopedia/stacks' }}
     />
   )

@@ -112,7 +112,7 @@ export default function PeptideSelect({ value, onChange, iuPerMgRef }) {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search peptides…"
+                placeholder="Search peptides"
                 aria-label="Search peptides"
                 className="w-full rounded-[10px] border border-hairline bg-navy py-2.5 pr-3 pl-9 text-[15px] text-tx placeholder:text-tx3-body"
               />
@@ -120,7 +120,7 @@ export default function PeptideSelect({ value, onChange, iuPerMgRef }) {
 
             <ul className="max-h-[52dvh] overflow-y-auto p-2">
               {isPending && (
-                <li className="p-4 text-sm text-tx3-body">Loading peptides…</li>
+                <li className="p-4 text-sm text-tx3-body">Loading peptides</li>
               )}
               {!isPending && filtered.length === 0 && (
                 <li className="p-4 text-sm text-tx3-body">

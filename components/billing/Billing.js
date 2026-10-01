@@ -6,6 +6,7 @@ import { Building2, Check, Lock, Mail, TriangleAlert } from 'lucide-react'
 import { billing as billingApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { useSession } from '@/lib/auth/session'
+import { formatDate } from '@/lib/format'
 import Button from '@/components/ui/Button'
 import Skeleton from '@/components/ui/Skeleton'
 import Markdown from './Markdown'
@@ -13,11 +14,13 @@ import HowItWorks from './HowItWorks'
 import ClaimForm from './ClaimForm'
 import ClaimStatus from './ClaimStatus'
 
+// What Peptora Pro adds. The library and the calculator are free and are not
+// part of the purchase.
 const INCLUDED = [
-  'Full peptide encyclopedia and stacks',
-  'Reconstitution and syringe calculator',
-  'Saved protocols with dose scheduling',
-  'Cycle tracker and dose history',
+  'Saved protocols, each with the schedule you set',
+  'One-tap logging and your full history',
+  'Saved calculations',
+  'Kept with your account, on the web and in the mobile apps',
   'Every future update, at no extra cost',
 ]
 
@@ -68,6 +71,11 @@ export default function Billing() {
   const isLifetime = !!user?.access?.is_lifetime
   const isRevoked = !!user?.access?.is_revoked
   const isTrial = !!user?.access?.is_trial
+  // Peptora Pro bought in the iPhone app. It is a real, current entitlement,
+  // but it is not this one-time purchase, so the purchase stays on offer.
+  const isSubscription = !!user?.access?.is_subscription
+  const subscriptionEnds = formatDate(user?.access?.subscription_expires_at)
+  const subscriptionRenews = user?.access?.subscription_auto_renew !== false
   const daysRemaining = user?.access?.days_remaining
   // Locked out right now, as opposed to "hasn't bought yet but is still on a
   // usable trial" — a trial user is not locked, so a Lock icon and "Unlock"
@@ -90,22 +98,44 @@ export default function Billing() {
           <Lock size={34} strokeWidth={1.4} aria-hidden="true" className="mx-auto mb-3 text-tx3" />
         )}
         <h1 className="mb-2 text-[28px] font-extrabold leading-tight text-tx">
-          {isLifetime ? 'Your Peptora licence' : locked ? 'Unlock Peptora' : 'Buy Peptora'}
+          {isLifetime || isSubscription
+            ? 'Your Peptora Pro'
+            : locked
+              ? 'Peptora Pro'
+              : 'Buy Peptora Pro'}
         </h1>
         <p className="mx-auto max-w-[46ch] text-sm leading-6 text-tx3-body">
           {isLifetime
-            ? 'You own Peptora outright. There is no renewal and nothing to cancel.'
+            ? 'You own Peptora Pro outright. There is no renewal and nothing to cancel.'
             : isRevoked
               ? 'Get in touch and we will sort this out with you.'
-              : isTrial
-                ? `You're on a free trial${
-                    typeof daysRemaining === 'number'
-                      ? ` — ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left`
-                      : ''
-                  }. Buy now to keep everything after it ends — one payment, no subscription, nothing to renew.`
-                : 'One payment. Buy it once and it is yours — no subscription, no recurring charge, nothing to cancel.'}
+              : isSubscription
+                ? 'You have Peptora Pro through an App Store subscription. You can also buy it once here and stop renewing.'
+                : isTrial
+                  ? `You are on the trial${
+                      typeof daysRemaining === 'number'
+                        ? `, with ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left`
+                        : ''
+                    }. Buy now to keep your protocols and history after it ends. One payment, no subscription, nothing to renew.`
+                  : 'Protocols, the tracker and your history. One payment on the web, with no subscription and nothing to cancel. The library and the calculator are free.'}
         </p>
       </header>
+
+      {isSubscription && !isLifetime && !isRevoked && (
+        <div className="card mb-3 flex items-start gap-3 border-teal/30 p-4">
+          <Check size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-teal" />
+          <div>
+            <p className="text-[13px] font-semibold text-tx">App Store subscription active</p>
+            <p className="mt-0.5 text-[12px] leading-5 text-tx3-body">
+              {subscriptionEnds
+                ? `It ${subscriptionRenews ? 'renews' : 'ends'} on ${subscriptionEnds}. `
+                : ''}
+              It is managed and cancelled in your App Store account settings
+              on your iPhone, not here.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Revocation outranks everything, including an approved claim. Without
           this the ClaimStatus below would cheerfully tell someone who has been
@@ -130,9 +160,9 @@ export default function Billing() {
         <div className="card mb-3 flex items-start gap-3 border-teal/30 p-4">
           <Check size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-teal" />
           <div>
-            <p className="text-[13px] font-semibold text-tx">Licence active</p>
+            <p className="text-[13px] font-semibold text-tx">Peptora Pro active</p>
             <p className="mt-0.5 text-[12px] leading-5 text-tx3-body">
-              Every tool is unlocked, permanently.
+              Protocols, the tracker and your history are yours, permanently.
             </p>
           </div>
         </div>
@@ -246,10 +276,10 @@ export default function Billing() {
         </ul>
       </section>
 
-      <p className="card p-4 text-[12px] leading-5 italic text-tx3-body">
-        Peptora is for research and educational use only. Nothing here
-        constitutes medical advice. Always consult a qualified healthcare
-        professional.
+      <p className="card p-4 text-[12px] leading-5 text-tx3-body">
+        Peptora records the schedule you set. It does not recommend doses, it
+        does not sell peptides or medication, and nothing here is medical
+        advice.
       </p>
     </div>
   )

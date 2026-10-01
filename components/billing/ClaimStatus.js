@@ -88,7 +88,7 @@ export default function ClaimStatus({ claim, slaHours = 24, onResubmit }) {
           </div>
         </div>
         <p className="mb-4 text-[13px] leading-6 text-tx3-body">
-          Nothing is lost. Correct the details and send them again — we will take
+          Nothing is lost. Correct the details and send them again, and we will take
           another look.
         </p>
         <Button onClick={onResubmit}>Submit corrected details</Button>
@@ -120,7 +120,7 @@ export default function ClaimStatus({ claim, slaHours = 24, onResubmit }) {
           </h2>
           <p className="mt-1 text-[13px] leading-6 text-tx3-body">
             {claim.status === 'approved'
-              ? 'Every tool is unlocked. This is a one-time purchase — there is nothing to renew.'
+              ? 'Peptora Pro is unlocked. This is a one-time purchase, so there is nothing to renew.'
               : `Every payment is checked by a person, so this is not instant. We usually get through them within ${window}, and we will email you the moment it is done.`}
           </p>
         </div>
@@ -197,7 +197,7 @@ function formatWhen(iso) {
       minute: '2-digit',
     })
   } catch {
-    return '—'
+    return 'Not given'
   }
 }
 
@@ -212,6 +212,6 @@ const REASONS = {
     'We could not find that reference on our side. Please double-check the transaction ID and submit it again.',
   duplicate_claim: 'This looks like a duplicate of a payment we have already handled.',
   not_received:
-    'We have not seen this payment arrive yet. Bank transfers can take a few days — please resubmit once it has cleared.',
+    'We have not seen this payment arrive yet. Bank transfers can take a few days. Please resubmit once it has cleared.',
   other: 'We could not verify this payment from the details provided.',
 }

@@ -50,7 +50,7 @@ export default function ConfirmDialog({
             {cancelLabel}
           </Button>
           <Button variant="danger" size="sm" onClick={onConfirm} disabled={pending}>
-            {pending ? 'Working…' : confirmLabel}
+            {pending ? 'Working' : confirmLabel}
           </Button>
         </div>
       </div>

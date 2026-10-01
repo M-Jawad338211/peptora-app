@@ -77,7 +77,7 @@ function ResetPasswordForm() {
       title="Set a new password"
       footer={
         <Link href="/app/auth/login" className="text-tx3-body no-underline">
-          ← Back to login
+          Back to login
         </Link>
       }
     >
@@ -119,7 +119,7 @@ function ResetPasswordForm() {
         )}
 
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Updating…' : 'Update password'}
+          {loading ? 'Updating' : 'Update password'}
         </Button>
       </form>
     </AuthCard>

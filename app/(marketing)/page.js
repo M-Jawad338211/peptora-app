@@ -1,135 +1,121 @@
 import Link from 'next/link'
+import { BookOpen, Calculator, ChartLine, FlaskConical } from 'lucide-react'
+import { DISCLAIMER, TAGLINE } from '@/lib/site'
+
+export const metadata = {
+  title: 'Peptora: peptide tracking and reference',
+  description:
+    'Keep track of your peptide protocols and your log. A cited reference library and a reconstitution calculator are included free.',
+}
+
+// What Peptora is made of, and which parts need Peptora Pro. The library and
+// the calculator are free in the app and on the web alike.
+const PARTS = [
+  {
+    icon: FlaskConical,
+    label: 'Protocols',
+    desc: 'Save each vial with the schedule you set for it.',
+    tier: 'Pro',
+  },
+  {
+    icon: ChartLine,
+    label: 'Log and history',
+    desc: 'Log an entry in one tap and look back over what you recorded.',
+    tier: 'Pro',
+  },
+  {
+    icon: BookOpen,
+    label: 'Peptide library',
+    desc: 'Reference entries written from published sources, each one listed and linked.',
+    tier: 'Free',
+  },
+  {
+    icon: Calculator,
+    label: 'Reconstitution calculator',
+    desc: 'Converts the numbers you enter between amount, volume and syringe units.',
+    tier: 'Free',
+  },
+]
 
 export default function Home() {
-  // Every tool is behind the licence now, so the old "Free" badges were a
-  // promise the app no longer keeps. The trial is the honest offer.
-  const tools = [
-    { href: '/app/calculator', icon: '⚗️', label: 'Dose Calculator', desc: 'Reconstitution and syringe dosing, worked out for you', badge: '14-day trial' },
-    { href: '/app/encyclopedia', icon: '📖', label: 'Peptide Encyclopedia', desc: 'Mechanisms, studied dose ranges and research status', badge: '14-day trial' },
-    { href: '/app/protocols', icon: '🧪', label: 'Protocols', desc: 'Save your regimens and log every dose', badge: '14-day trial' },
-    { href: '/app/tracker', icon: '📊', label: 'Cycle Tracker', desc: 'Log daily doses and review your history', badge: '14-day trial' },
-  ]
-
   return (
     <>
-
-      {/* Hero */}
-      <div style={{
-        maxWidth: '900px', margin: '0 auto',
-        padding: '80px 28px 60px', textAlign: 'center',
-      }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          background: 'rgba(0,214,143,0.08)',
-          border: '1px solid rgba(0,214,143,0.22)',
-          borderRadius: '50px', padding: '7px 18px 7px 10px',
-          marginBottom: '32px',
-        }}>
-          <div style={{
-            width: '24px', height: '24px', borderRadius: '50%',
-            background: 'rgba(0,214,143,0.15)',
-            border: '1px solid rgba(0,214,143,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <div style={{
-              width: '8px', height: '8px', borderRadius: '50%',
-              background: 'var(--teal)',
-              boxShadow: '0 0 8px var(--teal)',
-            }} />
-          </div>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: '12px',
-            color: 'var(--teal)', letterSpacing: '0.05em',
-          }}>Research intelligence platform · Built on published science</span>
-        </div>
-
-        <h1 style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: 'clamp(40px, 7vw, 80px)',
-          fontWeight: 400, lineHeight: 0.98,
-          letterSpacing: '-2px', color: 'var(--tx)',
-          marginBottom: '24px',
-        }}>
-          The peptide platform<br />
-          <span style={{ color: 'rgba(232,237,245,0.3)' }}>researchers </span>
-          <em style={{ color: 'var(--teal)', fontStyle: 'italic' }}>rely on.</em>
-        </h1>
-
-        <p style={{
-          fontFamily: 'var(--font-sans)', fontSize: '19px',
-          fontWeight: 300, color: 'var(--tx2)',
-          lineHeight: 1.75, maxWidth: '520px',
-          margin: '0 auto 44px',
-        }}>
-          Precision tools and research-backed intelligence for serious peptide scientists. Free for 14 days, then one payment — no subscription, nothing to cancel.
+      <section className="mx-auto max-w-[860px] px-7 pt-20 pb-14 text-center">
+        <p className="mb-7 inline-block rounded-full border border-teal/25 bg-teal/8 px-4 py-1.5 font-mono text-[12px] tracking-[0.04em] text-teal">
+          {TAGLINE}
         </p>
 
-        <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/app/auth/signup" style={{
-            fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 600,
-            color: '#021a0e', textDecoration: 'none',
-            background: 'linear-gradient(135deg, #00d68f, #00f0a0)',
-            borderRadius: '13px', padding: '16px 36px',
-            boxShadow: '0 8px 32px rgba(0,214,143,0.3)',
-          }}>Start your free trial →</Link>
-          <Link href="/app/billing" style={{
-            fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 400,
-            color: 'var(--tx2)', textDecoration: 'none',
-            background: 'var(--sl)', border: '1px solid rgba(255,255,255,0.14)',
-            borderRadius: '13px', padding: '16px 36px',
-          }}>See the price</Link>
-        </div>
-      </div>
+        <h1 className="mb-6 font-display text-[clamp(38px,6.5vw,72px)] leading-[1.02] tracking-[-1.5px] text-tx">
+          Keep track of your
+          <br />
+          <span className="text-teal">peptide protocols.</span>
+        </h1>
 
-      {/* Tools grid */}
-      <div style={{
-        maxWidth: '1100px', margin: '0 auto',
-        padding: '0 28px 80px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-        gap: '14px',
-      }}>
-        {tools.map(tool => (
-          <Link key={tool.href} href="/app/auth/signup" style={{
-            textDecoration: 'none',
-            background: 'var(--navy2)',
-            border: '1px solid rgba(255,255,255,0.09)',
-            borderRadius: '16px', padding: '24px',
-            display: 'block', transition: 'all 0.2s',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <span style={{ fontSize: '28px' }}>{tool.icon}</span>
-              <span style={{
-                fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 500,
-                padding: '3px 10px', borderRadius: '20px',
-                background: 'rgba(0,214,143,0.10)',
-                color: 'var(--teal)',
-                border: '1px solid rgba(0,214,143,0.22)',
-              }}>{tool.badge}</span>
-            </div>
-            <div style={{
-              fontFamily: 'var(--font-sans)', fontSize: '16px',
-              fontWeight: 600, color: 'var(--tx)', marginBottom: '6px',
-            }}>{tool.label}</div>
-            <div style={{
-              fontFamily: 'var(--font-sans)', fontSize: '13.5px',
-              fontWeight: 300, color: 'var(--tx2)', lineHeight: 1.65,
-            }}>{tool.desc}</div>
+        <p className="mx-auto mb-10 max-w-[560px] text-[18px] leading-8 font-light text-tx2">
+          Peptora records the schedule you set and keeps your log. The
+          reference library cites its sources, and the calculator works only
+          on numbers you enter.
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-3.5">
+          <Link
+            href="/app/auth/signup"
+            className="rounded-[13px] bg-teal px-9 py-4 text-base font-semibold text-on-teal no-underline transition-colors hover:bg-teal-dark"
+          >
+            Create an account
           </Link>
-        ))}
-      </div>
+          <Link
+            href="/app/auth/login"
+            className="rounded-[13px] border border-hairline-strong bg-inset px-9 py-4 text-base text-tx2 no-underline transition-colors hover:text-tx"
+          >
+            Log in
+          </Link>
+        </div>
 
-      {/* Footer disclaimer */}
-      <div style={{
-        borderTop: '1px solid rgba(255,255,255,0.09)',
-        padding: '20px 28px', textAlign: 'center',
-        fontFamily: 'var(--font-mono)', fontSize: '11.5px',
-        color: 'var(--tx3)', lineHeight: 1.8,
-      }}>
-        For research and educational purposes only. Not medical advice. Consult a licensed healthcare provider before using any peptide or research compound.
-        <br />
-        <Link href="/privacy-policy" style={{ color: 'var(--tx2)', textDecoration: 'none' }}>Privacy Policy</Link>
-      </div>
+        <p className="mx-auto mt-7 max-w-[520px] text-[13.5px] leading-6 text-tx3-body">
+          The library and the calculator are free. Protocols, the log and your
+          history are part of Peptora Pro, and a new account on the web starts
+          with 14 days of Pro.
+        </p>
+      </section>
+
+      <section
+        aria-label="What is in Peptora"
+        className="mx-auto grid max-w-[1100px] grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3.5 px-7 pb-20"
+      >
+        {PARTS.map(({ icon: Icon, label, desc, tier }) => (
+          <div key={label} className="card rounded-[16px] p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="flex size-11 items-center justify-center rounded-[12px] border border-teal/25 bg-teal/10">
+                <Icon size={21} aria-hidden="true" className="text-teal" strokeWidth={1.8} />
+              </span>
+              <span
+                className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-medium ${
+                  tier === 'Free'
+                    ? 'border-hairline-strong text-tx2'
+                    : 'border-teal/25 bg-teal/10 text-teal'
+                }`}
+              >
+                {tier}
+              </span>
+            </div>
+            <h2 className="mb-1.5 text-base font-semibold text-tx">{label}</h2>
+            <p className="text-[13.5px] leading-6 font-light text-tx2">{desc}</p>
+          </div>
+        ))}
+      </section>
+
+      <footer className="border-t border-hairline px-7 py-6 text-center text-[12px] leading-6 text-tx3-body">
+        <p className="mx-auto max-w-[640px]">{DISCLAIMER}</p>
+        <p className="mt-2 flex justify-center gap-5">
+          <Link href="/privacy-policy" className="text-tx2 no-underline hover:text-tx">
+            Privacy Policy
+          </Link>
+          <Link href="/support" className="text-tx2 no-underline hover:text-tx">
+            Support
+          </Link>
+        </p>
+      </footer>
     </>
   )
 }

@@ -1,22 +1,31 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Droplet } from 'lucide-react'
 import { peptides as peptidesApi, calculator } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
-import { calc_forward, to_mcg, build_result, dilution_options } from '@/lib/reconstitution'
+import {
+  calc_forward, to_mcg, build_result, dilution_options, mcg_from_units,
+} from '@/lib/reconstitution'
 import { protocolDefaultsFromPeptide } from '@/lib/peptideDefaults'
+import { amountFromMcg, trimNum } from '@/lib/format'
 import { generateFingerprint } from '@/lib/fingerprint'
 import { useDebounce } from '@/lib/hooks/useDebounce'
 import { useSession } from '@/lib/auth/session'
 import Button from '@/components/ui/Button'
+import HoldButton from '@/components/ui/HoldButton'
 import PeptideSelect from './PeptideSelect'
 import ResultsPanel from './ResultsPanel'
 import DilutionPicker from './DilutionPicker'
+import VialSyringe from './VialSyringe'
 import { ResearchBanner } from './Callouts'
 import { NumberInput, ChipGroup } from './inputs'
 
 const SYRINGE_TYPES = ['U-100', 'U-50', 'U-40']
+// Units on the full barrel of each syringe. Each one holds 1 mL.
+const SYRINGE_UNITS = { 'U-100': 100, 'U-50': 50, 'U-40': 40 }
 const VIAL_PRESETS = [5, 10, 15]
 
 export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
@@ -35,6 +44,11 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   // Kept as a plain choice rather than a typed target so nothing has to be
   // rounded away behind their back.
   const [dilutionMl, setDilutionMl] = useState(null)
+  // The amount as last set by dragging the plunger. It is used at once, where
+  // a typed amount waits for the debounce below, so the picture and the
+  // results keep up with the pointer.
+  const [dragDose, setDragDose] = useState(null)
+  const picture = useRef(null)
 
   const [saving, setSaving] = useState(false)
   const [saveState, setSaveState] = useState(null) // {ok, message}
@@ -64,10 +78,11 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
   const dVial = useDebounce(vialMg, 250)
   const dBac = useDebounce(bacMl, 250)
   const dDose = useDebounce(targetDose, 250)
+  const liveDose = dragDose ?? dDose
 
   const { result, errors, doseMcg, waterMl, dilution } = useMemo(() => {
     const vial = parseFloat(dVial)
-    const rawDose = parseFloat(dDose)
+    const rawDose = parseFloat(liveDose)
     if (!vial || vial <= 0 || !rawDose || rawDose <= 0) {
       return { result: null, errors: [], doseMcg: null, waterMl: null, dilution: null }
     }
@@ -96,7 +111,6 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
             unit,
             target_dose: rawDose,
             syringe_type: syringeType,
-            suggested_frequency: defaults?.suggested_frequency ?? null,
           }),
         },
         errors: [],
@@ -129,7 +143,6 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
           unit,
           target_dose: rawDose,
           syringe_type: syringeType,
-          suggested_frequency: defaults?.suggested_frequency ?? null,
         }),
       },
       errors: [],
@@ -137,7 +150,30 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
       waterMl: water,
       dilution: d,
     }
-  }, [dVial, dBac, dDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide, defaults])
+  }, [dVial, dBac, liveDose, dilutionMl, unit, syringeType, reconstituted, iuPerMg, peptide])
+
+  // What the picture needs, which is less than a full result: the vial shows
+  // its amount and its water as soon as each is typed.
+  const vialNum = parseFloat(dVial) > 0 ? parseFloat(dVial) : 0
+  const pictureWater = reconstituted
+    ? (parseFloat(dBac) > 0 ? parseFloat(dBac) : 0)
+    : (waterMl ?? 0)
+  const capacity = SYRINGE_UNITS[syringeType]
+  const drawUnits = result?.ok ? result.syringe.draw_units : null
+  const concentration =
+    reconstituted && vialNum > 0 && pictureWater > 0 ? (vialNum * 1000) / pictureWater : null
+  const canPreview = drawUnits != null && drawUnits > 0 && drawUnits <= capacity
+
+  // Dragging the plunger runs the conversion the other way: the syringe gives
+  // the units, and the amount field follows.
+  const onUnitsChange = (units) => {
+    if (!concentration) return
+    const mcg = mcg_from_units(units, concentration, syringeType)
+    if (mcg == null) return
+    const text = amountFromMcg(mcg, unit, iuPerMg)
+    setTargetDose(text)
+    setDragDose(text)
+  }
 
   const save = async () => {
     if (!result?.ok || saving) return
@@ -170,35 +206,28 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
     }
   }
 
-  const rangeHint =
-    defaults?.suggested_dose_low != null
-      ? `Studied range: ${defaults.suggested_dose_low}${
-          defaults.suggested_dose_high != null && defaults.suggested_dose_high !== defaults.suggested_dose_low
-            ? `–${defaults.suggested_dose_high}`
-            : ''
-        } ${defaults.dose_unit} — not a recommendation.`
-      : null
+  // Saving a calculation and its history are part of Peptora Pro. The
+  // arithmetic itself is free.
+  const canSave = !!user?.access?.has_access
 
   return (
     <div className="mx-auto max-w-[760px]">
-      <ResearchBanner />
+      <ResearchBanner>
+        Arithmetic for a reconstituted vial. You enter every number, and
+        Peptora converts between amount, volume and syringe units. It does not
+        suggest how much to use.
+      </ResearchBanner>
 
       <div className="card space-y-4 p-4">
         <PeptideSelect value={peptideId} onChange={setPeptideId} />
 
-        {rangeHint && (
-          <p className="rounded-[10px] border border-teal/18 bg-teal/6 px-3 py-2.5 text-[12px] leading-5 text-tx2">
-            {rangeHint}
-          </p>
-        )}
-
         <div>
           <NumberInput
-            label="Vial strength"
+            label="Vial amount"
             suffix="mg"
             value={vialMg}
             onChange={(e) => setVialMg(e.target.value)}
-            placeholder="e.g. 5"
+            placeholder="0"
           />
           <div className="mt-2 flex gap-1.5">
             {VIAL_PRESETS.map((v) => (
@@ -226,21 +255,28 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
 
         {reconstituted && (
           <NumberInput
-            label="BAC water added"
+            label="Water added"
             suffix="mL"
             value={bacMl}
             onChange={(e) => setBacMl(e.target.value)}
-            placeholder="e.g. 2"
+            placeholder="0"
           />
         )}
 
         <div>
           <NumberInput
-            label="Target dose"
+            label="Amount to measure"
             value={targetDose}
-            onChange={(e) => setTargetDose(e.target.value)}
-            placeholder="e.g. 250"
+            onChange={(e) => {
+              setTargetDose(e.target.value)
+              setDragDose(null)
+            }}
+            placeholder="0"
           />
+          <p className="mt-1.5 text-[12px] leading-5 text-tx3-body">
+            The amount you have already decided on. Peptora never fills this in
+            for you.
+          </p>
           <div className="mt-2">
             <ChipGroup
               options={availableUnits}
@@ -249,7 +285,7 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
                 setUnitTouched(true)
                 setUnitInput(u)
               }}
-              label="Dose unit"
+              label="Unit"
             />
           </div>
         </div>
@@ -287,12 +323,50 @@ export default function ProtocolBuilder({ initialPeptideId = null, onSaved }) {
         </ul>
       )}
 
-      <ResultsPanel result={result} peptideName={peptide?.name} />
+      <section className="card mt-3 p-4" aria-label="Vial and syringe">
+        <VialSyringe
+          ref={picture}
+          vialMg={vialNum}
+          waterMl={pictureWater}
+          units={drawUnits}
+          maxUnits={capacity}
+          syringeType={syringeType}
+          onUnitsChange={concentration ? onUnitsChange : undefined}
+          hint={
+            !reconstituted
+              ? 'The picture follows the water volume chosen above.'
+              : concentration
+                ? 'Drag the plunger to read units back as an amount.'
+                : 'Enter the vial amount and the water to set up the syringe.'
+          }
+        />
+        <HoldButton
+          className="mt-3.5"
+          icon={Droplet}
+          label="Hold to preview the draw"
+          holdingLabel="Drawing"
+          doneLabel={canPreview ? `Drawn to ${trimNum(drawUnits, 1)} units` : 'Done'}
+          duration={1100}
+          disabled={!canPreview}
+          onProgress={(p) => picture.current?.setProgress(p)}
+        />
+      </section>
 
-      {result?.ok && user && (
+      <ResultsPanel result={result} peptideName={peptide?.name} visual={false} />
+
+      {result?.ok && user && !canSave && (
+        <p className="mt-4 text-center text-[13px] leading-5 text-tx3-body">
+          Saving calculations to a history is part of Peptora Pro.{' '}
+          <Link href="/app/billing" className="text-teal no-underline">
+            See Pro
+          </Link>
+        </p>
+      )}
+
+      {result?.ok && canSave && (
         <div className="mt-4">
           <Button onClick={save} disabled={saving} fullWidth>
-            {saving ? 'Saving…' : 'Save to history'}
+            {saving ? 'Saving' : 'Save to history'}
           </Button>
           {saveState && (
             <p

@@ -1,15 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Trash2, Plus, X } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Trash2, Pencil, X } from 'lucide-react'
 import { protocols as protocolsApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { formatDate, formatDateTime, daysSince, formatDoseFromMcg } from '@/lib/format'
 import { calc_forward, build_result } from '@/lib/reconstitution'
-import Button from '@/components/ui/Button'
+import HoldButton from '@/components/ui/HoldButton'
 import Skeleton from '@/components/ui/Skeleton'
 import ErrorState from '@/components/ui/ErrorState'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
@@ -24,7 +24,7 @@ function CycleCell({ label, value }) {
   return (
     <div>
       <p className="eyebrow mb-0.5 text-[10px]">{label}</p>
-      <p className="text-sm font-semibold text-tx">{value ?? '—'}</p>
+      <p className="text-sm font-semibold text-tx">{value ?? 'Not set'}</p>
     </div>
   )
 }
@@ -36,6 +36,9 @@ export default function ProtocolDetail({ id }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [confirmLog, setConfirmLog] = useState(null)
   const [logError, setLogError] = useState('')
+  // The vial and syringe picture in the Calculation section. Holding the log
+  // button replays the draw on it.
+  const picture = useRef(null)
 
   const { data: p, isPending, error, refetch, isFetching } = useQuery({
     queryKey: qk.protocol(id),
@@ -108,7 +111,9 @@ export default function ProtocolDetail({ id }) {
   }
 
   const title = p.label || p.peptide_name || p.stack_name || 'Untitled protocol'
-  const day = p.start_date != null ? daysSince(p.start_date) : null
+  // A protocol with no start date entered started when it was created.
+  const started = p.start_date || p.created_at
+  const day = started != null ? daysSince(started) : null
 
   // Recompute the calculation from the stored configuration.
   const calc =
@@ -128,7 +133,6 @@ export default function ProtocolDetail({ id }) {
                   unit: p.unit,
                   target_dose: formatDoseFromMcg(p.target_dose_mcg, p.unit).split(' ')[0],
                   syringe_type: p.syringe_type || 'U-100',
-                  suggested_frequency: p.frequency,
                 }),
               }
             : null
@@ -136,6 +140,22 @@ export default function ProtocolDetail({ id }) {
       : null
 
   const logs = p.dose_logs ?? []
+  const dose = formatDoseFromMcg(p.target_dose_mcg, p.unit)
+
+  // One press and hold: log the protocol's own dose, timed now.
+  const quickLog = () => {
+    if (!dose || addLog.isPending) return
+    setLogError('')
+    addLog.mutate({
+      peptide_name: p.peptide_name || p.stack_name || p.label || 'Protocol',
+      dose,
+      notes: null,
+      taken_at: new Date().toISOString(),
+    })
+  }
+  // Without a dose on the protocol there is nothing to log in one press, so
+  // the form with its own dose field is shown instead.
+  const formOpen = showLogForm || !dose
 
   return (
     <div className="mx-auto max-w-[760px]">
@@ -204,11 +224,11 @@ export default function ProtocolDetail({ id }) {
 
       {/* Cycle */}
       <div className="card mb-2.5 grid grid-cols-2 gap-4 p-4">
-        <CycleCell label="Started" value={p.start_date ? formatDate(p.start_date) : null} />
-        <CycleCell label="Day" value={day != null ? `#${day + 1}` : null} />
+        <CycleCell label="Started" value={started ? formatDate(started) : null} />
+        <CycleCell label="Day" value={day != null ? String(day + 1) : null} />
         <CycleCell
           label="Duration"
-          value={p.duration_weeks ? `${p.duration_weeks} wks` : 'Open'}
+          value={p.duration_weeks ? `${p.duration_weeks} weeks` : 'Open'}
         />
         <CycleCell label="Frequency" value={p.frequency} />
         {p.notes && (
@@ -220,7 +240,14 @@ export default function ProtocolDetail({ id }) {
 
       {calc && (
         <Section title="Calculation">
-          <ResultsPanel result={calc} peptideName={p.peptide_name} />
+          <ResultsPanel
+            result={calc}
+            peptideName={p.peptide_name}
+            vialMg={Number(p.vial_mg)}
+            waterMl={Number(p.bac_water_ml)}
+            visualRef={picture}
+            preview={false}
+          />
         </Section>
       )}
 
@@ -231,17 +258,45 @@ export default function ProtocolDetail({ id }) {
             Dose log{' '}
             <span className="font-normal text-tx3-body">({logs.length})</span>
           </h2>
-          <button
-            type="button"
-            onClick={() => setShowLogForm((v) => !v)}
-            className="tap inline-flex items-center gap-1 px-2 text-[13px] font-semibold text-teal"
-          >
-            {showLogForm ? <X size={14} aria-hidden="true" /> : <Plus size={14} aria-hidden="true" />}
-            {showLogForm ? 'Cancel' : 'Log dose'}
-          </button>
+          {dose && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowLogForm((v) => !v)
+                setLogError('')
+              }}
+              className="tap inline-flex items-center gap-1 px-2 text-[13px] font-semibold text-teal"
+            >
+              {showLogForm ? <X size={14} aria-hidden="true" /> : <Pencil size={13} aria-hidden="true" />}
+              {showLogForm ? 'Cancel' : 'Add details'}
+            </button>
+          )}
         </div>
 
-        {showLogForm && (
+        {!formOpen && (
+          <div className="mb-3">
+            <HoldButton
+              icon={CircleCheck}
+              label={`Hold to log ${dose}`}
+              holdingLabel="Keep holding"
+              doneLabel="Logged"
+              busy={addLog.isPending}
+              onProgress={(v) => picture.current?.setProgress(v)}
+              onComplete={quickLog}
+            />
+            <p className="mt-2 text-center text-[12px] leading-5 text-tx3-body">
+              Logs your own dose at the current time. Use Add details for a
+              different amount, time or a note.
+            </p>
+            {logError && (
+              <p role="alert" className="mt-1 text-center text-[13px] text-danger-text">
+                {logError}
+              </p>
+            )}
+          </div>
+        )}
+
+        {formOpen && (
           <div className="mb-3">
             <DoseLogForm
               protocol={p}

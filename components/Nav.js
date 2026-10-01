@@ -2,18 +2,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { BookOpen, Calculator, ChartLine, FlaskConical, LifeBuoy } from "lucide-react";
 import { useSession, useLogout } from "@/lib/auth/session";
+import Logo from "@/components/Logo";
 
 function NavLogo() {
   return (
     <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-      <div style={{
-        width: "34px", height: "34px", borderRadius: "9px",
-        background: "rgba(0,214,143,0.10)", border: "1px solid rgba(0,214,143,0.22)",
-        display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px",
-      }}>🧬</div>
+      <Logo />
       <span style={{ fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 600, color: "var(--tx)", letterSpacing: "-0.2px" }}>
-        Peptora<em style={{ color: "var(--teal)", fontStyle: "normal" }}>.io</em>
+        Peptora
       </span>
     </Link>
   );
@@ -35,11 +33,11 @@ export default function Nav() {
   }, [menuOpen]);
 
   const links = [
-    { href: "/app/calculator", label: "Calculator", icon: "⚗️" },
-    { href: "/app/encyclopedia", label: "Encyclopedia", icon: "📖" },
-    { href: "/app/protocols", label: "Protocols", icon: "🧪" },
-    { href: "/app/tracker", label: "Tracker", icon: "📊" },
-    { href: "/support", label: "Support", icon: "💬" },
+    { href: "/app/encyclopedia", label: "Library", icon: BookOpen },
+    { href: "/app/calculator", label: "Calculator", icon: Calculator },
+    { href: "/app/protocols", label: "Protocols", icon: FlaskConical },
+    { href: "/app/tracker", label: "Log", icon: ChartLine },
+    { href: "/support", label: "Support", icon: LifeBuoy },
   ];
 
   const handleLogout = async () => {
@@ -85,7 +83,7 @@ export default function Nav() {
                   textDecoration: "none", padding: "7px 16px",
                   border: "1px solid rgba(255,255,255,0.14)", borderRadius: "8px",
                 }}>
-                  {user.plan === "pro" ? "⭐ Pro" : user.email.split("@")[0]}
+                  {user.email.split("@")[0]}
                 </Link>
                 <button onClick={handleLogout} style={{
                   fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--tx3)",
@@ -105,9 +103,8 @@ export default function Nav() {
                 </Link>
                 <Link href="/app/auth/signup" style={{
                   fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600,
-                  color: "#021a0e", background: "linear-gradient(135deg, #00d68f, #00f0a0)",
+                  color: "#021a0e", background: "var(--teal)",
                   textDecoration: "none", padding: "8px 18px", borderRadius: "8px",
-                  boxShadow: "0 4px 14px rgba(0,214,143,0.25)",
                 }}>
                   Get started
                 </Link>
@@ -190,7 +187,7 @@ export default function Nav() {
                 background: active ? "rgba(0,214,143,0.10)" : "transparent",
                 transition: "background 0.15s",
               }}>
-                <span style={{ fontSize: "16px", lineHeight: 1 }}>{link.icon}</span>
+                <link.icon size={18} aria-hidden="true" strokeWidth={1.8} color={active ? "var(--teal)" : "var(--tx2)"} />
                 <span style={{
                   fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 500,
                   color: active ? "var(--teal)" : "var(--tx2)",
@@ -200,7 +197,7 @@ export default function Nav() {
                 {active && (
                   <span style={{
                     marginLeft: "auto", width: "6px", height: "6px", borderRadius: "50%",
-                    background: "var(--teal)", boxShadow: "0 0 6px var(--teal)",
+                    background: "var(--teal)",
                   }} />
                 )}
               </Link>
@@ -228,14 +225,14 @@ export default function Nav() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--teal)",
                 }}>
-                  {user.plan === "pro" ? "⭐" : user.email[0].toUpperCase()}
+                  {user.email[0].toUpperCase()}
                 </div>
                 <div>
                   <div style={{ fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 600, color: "var(--tx)" }}>
-                    {user.plan === "pro" ? "Pro account" : user.email.split("@")[0]}
+                    {user.email.split("@")[0]}
                   </div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--tx3)" }}>
-                    {user.plan === "pro" ? user.email.split("@")[0] : "Free plan"}
+                    {user.access?.has_access ? "Peptora Pro" : "Free"}
                   </div>
                 </div>
               </Link>
@@ -261,10 +258,9 @@ export default function Nav() {
               <Link href="/app/auth/signup" style={{
                 display: "block", textAlign: "center", padding: "12px",
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, #00d68f, #00f0a0)",
+                background: "var(--teal)",
                 fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 600,
                 color: "#021a0e", textDecoration: "none",
-                boxShadow: "0 4px 14px rgba(0,214,143,0.25)",
               }}>
                 Get started
               </Link>

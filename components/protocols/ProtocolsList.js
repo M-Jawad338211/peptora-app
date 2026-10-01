@@ -43,7 +43,7 @@ function List() {
       <EmptyState
         icon={FlaskConical}
         title="No protocols yet"
-        body="Save a dose calculation as a protocol to track it over time and log every dose."
+        body="Save a vial with the schedule you set for it, then log each entry as you go."
         action={{ label: 'Create first protocol', href: '/app/protocols/new' }}
       />
     )
@@ -79,8 +79,8 @@ export default function ProtocolsList() {
       <PlanGate
         authTitle="Log in to use Protocols"
         authSubtitle="Protocols save your regimen and let you log every dose."
-        title="Subscribe to use Protocols"
-        subtitle="Your saved protocols are still here — subscribe to open and edit them."
+        title="Protocols are part of Peptora Pro"
+        subtitle="Your saved protocols are still here. Peptora Pro opens them again."
       >
         <List />
       </PlanGate>

@@ -4,9 +4,9 @@ import PeptideList from '@/components/encyclopedia/PeptideList'
 import EmptyState from '@/components/ui/EmptyState'
 
 export const metadata = {
-  title: 'Encyclopedia · Peptora',
+  title: 'Library · Peptora',
   description:
-    'Peptide reference with mechanisms, studied dose ranges, evidence levels and regulatory status.',
+    'Peptide reference entries with mechanisms, evidence levels, regulatory status and the sources for each.',
 }
 
 /**
@@ -30,7 +30,7 @@ export default async function EncyclopediaPage() {
       <EmptyState
         icon={BookOpen}
         title="Could not load peptides"
-        body="The encyclopedia is temporarily unavailable. Check your connection and try again."
+        body="The library is temporarily unavailable. Check your connection and try again."
         action={{ label: 'Reload', href: '/app/encyclopedia' }}
       />
     )
@@ -41,7 +41,7 @@ export default async function EncyclopediaPage() {
       <EmptyState
         icon={BookOpen}
         title="No peptides yet"
-        body="The encyclopedia has no entries at the moment."
+        body="The library has no entries at the moment."
       />
     )
   }

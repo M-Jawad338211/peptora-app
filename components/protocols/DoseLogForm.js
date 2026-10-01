@@ -43,7 +43,7 @@ export default function DoseLogForm({ protocol, onSubmit, pending, error }) {
         label="Dose"
         value={dose}
         onChange={(e) => setDose(e.target.value)}
-        placeholder="e.g. 250 mcg"
+        placeholder="Amount and unit"
         className="mb-3"
       />
 
@@ -75,7 +75,7 @@ export default function DoseLogForm({ protocol, onSubmit, pending, error }) {
 
       <Button type="submit" size="sm" disabled={pending || !dose.trim()} fullWidth>
         <Plus size={14} aria-hidden="true" />
-        {pending ? 'Logging…' : 'Log dose'}
+        {pending ? 'Saving' : 'Save entry'}
       </Button>
     </form>
   )

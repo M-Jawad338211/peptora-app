@@ -6,7 +6,7 @@ import EmptyState from '@/components/ui/EmptyState'
 export const metadata = {
   title: 'Stacks · Peptora',
   description:
-    'Peptide stacks and blends — research pairings and commercial blend products, with each component\'s own studied dose ranges.',
+    'Peptide stacks and blends: research pairings and commercial blend products, with the sources for each.',
 }
 
 export default async function StacksPage() {
@@ -24,7 +24,7 @@ export default async function StacksPage() {
       <EmptyState
         icon={Layers}
         title="Could not load stacks"
-        body="The encyclopedia is temporarily unavailable. Check your connection and try again."
+        body="The library is temporarily unavailable. Check your connection and try again."
         action={{ label: 'Reload', href: '/app/encyclopedia/stacks' }}
       />
     )
@@ -35,7 +35,7 @@ export default async function StacksPage() {
       <EmptyState
         icon={Layers}
         title="No stacks yet"
-        body="The encyclopedia has no stack entries at the moment."
+        body="The library has no stack entries at the moment."
       />
     )
   }

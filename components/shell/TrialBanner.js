@@ -23,8 +23,10 @@ export default function TrialBanner() {
   const access = user?.access
 
   // A one-time licence has no end date. Counting down at a user who bought the
-  // product outright would be nonsense, and alarming nonsense at that.
-  if (!access?.has_access || access.is_lifetime) return null
+  // product outright would be nonsense, and alarming nonsense at that. An App
+  // Store subscription renews by itself, so its period ending is not news
+  // either.
+  if (!access?.has_access || access.is_lifetime || access.is_subscription) return null
 
   // Pointless on the page that already sells the licence.
   if (pathname === '/app/billing') return null
@@ -43,7 +45,7 @@ export default function TrialBanner() {
       <Clock size={15} aria-hidden="true" className="shrink-0 text-warn" />
       <span className="text-[13px] leading-5 text-tx2">
         {noun} ends {when}. Payments are checked by hand, so allow a day.{' '}
-        <span className="font-semibold text-tx">Unlock Peptora →</span>
+        <span className="font-semibold text-tx">See Peptora Pro</span>
       </span>
     </Link>
   )

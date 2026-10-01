@@ -18,8 +18,9 @@ const dmMono = DM_Mono({
 })
 
 export const metadata = {
-  title: 'Peptora — Research Intelligence Platform',
-  description: 'Precision tools and research-backed intelligence for peptide scientists.',
+  title: 'Peptora: peptide tracking and reference',
+  description:
+    'Keep track of your peptide protocols and your log, with a cited reference library and a reconstitution calculator.',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

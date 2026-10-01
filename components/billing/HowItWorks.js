@@ -14,7 +14,7 @@ const STEPS = [
     icon: Send,
     title: 'Send the payment',
     body: (price) =>
-      `Transfer ${price} to the account shown below. Use your own bank app or branch — Peptora never asks for card details.`,
+      `Transfer ${price} to the account shown below. Use your own bank app or branch. Peptora never asks for card details.`,
   },
   {
     icon: Upload,
@@ -26,13 +26,13 @@ const STEPS = [
     icon: FileClock,
     title: 'We check it by hand',
     body: (_price, window) =>
-      `A person compares your receipt against the transfer — there is no automatic gateway to do this instantly. It usually takes ${window}.`,
+      `A person compares your receipt against the transfer. There is no automatic gateway to do this instantly, so it usually takes ${window}.`,
   },
   {
     icon: CircleCheck,
     title: 'Your licence activates',
     body: () =>
-      'The moment it is approved you get an email, and the app unlocks on its own — no code to enter, nothing else to do. Keep this tab open or close it; either way works.',
+      'The moment it is approved you get an email, and Peptora Pro unlocks on its own. There is no code to enter and nothing else to do. Keep this tab open or close it; either way works.',
   },
 ]
 

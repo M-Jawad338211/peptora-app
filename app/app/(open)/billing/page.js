@@ -1,9 +1,9 @@
 import Billing from '@/components/billing/Billing'
 
 export const metadata = {
-  title: 'Unlock Peptora',
+  title: 'Peptora Pro · Peptora',
   description:
-    'Peptora is a one-time purchase. Pay by bank transfer, upload your receipt, and we activate your licence by hand.',
+    'On the web, Peptora Pro is a one-time purchase. Pay by bank transfer, upload your receipt, and we activate it by hand.',
 }
 
 /**
