@@ -6,10 +6,59 @@ import { Mail, ShieldCheck, Star, LogOut, CalendarClock } from 'lucide-react'
 import { protocols as protocolsApi } from '@/lib/api'
 import { qk } from '@/lib/query/keys'
 import { useSession, useLogout } from '@/lib/auth/session'
+import { formatDate } from '@/lib/format'
 import AuthGate from '@/components/auth/AuthGate'
 import Button from '@/components/ui/Button'
 import Skeleton from '@/components/ui/Skeleton'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import DeleteAccount, { DeletedNotice } from './DeleteAccount'
+
+/**
+ * What the account has, in plain words. `access` comes from the API; nothing
+ * here works it out from dates.
+ */
+function planCopy(access) {
+  if (access?.is_revoked) {
+    return {
+      plan: 'Free',
+      title: 'Your access has been withdrawn',
+      text: 'Get in touch and we will look into it with you.',
+    }
+  }
+  if (access?.is_lifetime) {
+    return {
+      plan: 'Pro',
+      title: 'You own Peptora Pro',
+      text: 'A one-time purchase. There is no renewal, no expiry and nothing to cancel.',
+    }
+  }
+  if (access?.is_subscription) {
+    const when = formatDate(access.subscription_expires_at)
+    const renews = access.subscription_auto_renew !== false
+    return {
+      plan: 'Pro',
+      title: 'Peptora Pro subscription',
+      text: `Bought in the iPhone app${
+        when ? `, and ${renews ? 'renews' : 'ends'} on ${when}` : ''
+      }. Manage or cancel it in your App Store account settings.`,
+    }
+  }
+  if (access?.is_trial) {
+    return {
+      plan: 'Trial',
+      title: 'You are on the trial of Peptora Pro',
+      text: 'When the trial ends, protocols, the tracker and your history are locked. The library and the calculator stay free.',
+    }
+  }
+  if (access?.has_access) {
+    return { plan: 'Pro', title: 'Peptora Pro is active', text: null }
+  }
+  return {
+    plan: 'Free',
+    title: 'Peptora Pro',
+    text: 'Protocols, the tracker and your history are part of Peptora Pro. The library and the calculator are free.',
+  }
+}
 
 function InfoRow({ icon: Icon, label, value, valueClass = 'text-tx' }) {
   return (
@@ -21,16 +70,20 @@ function InfoRow({ icon: Icon, label, value, valueClass = 'text-tx' }) {
   )
 }
 
-function ProfileContent({ user }) {
+function ProfileContent({ user, onDeleted }) {
   const [confirmLogout, setConfirmLogout] = useState(false)
   const logout = useLogout()
 
   const access = user.access
   const hasAccess = !!access?.has_access
+  const copy = planCopy(access)
+  // A subscription renews, so "ends in N days" would be wrong for it; its
+  // date is in the sentence below instead.
+  const showCountdown =
+    hasAccess && !access.is_subscription && access.days_remaining != null
 
-  // /protocols/stats/summary is behind the paywall now. Firing it for a
-  // lapsed user only produces a 402 and a retry storm; the counters render
-  // as zero either way.
+  // /protocols/stats/summary needs Peptora Pro. Firing it without Pro only
+  // produces a 402, so the counters are simply not shown then.
   const stats = useQuery({
     queryKey: qk.protocolStats,
     queryFn: protocolsApi.stats,
@@ -55,22 +108,24 @@ function ProfileContent({ user }) {
         </div>
       </div>
 
-      <div className="card mb-2.5 grid grid-cols-3 divide-x divide-hairline p-4">
-        {[
-          ['Protocols', stats.data?.total_protocols],
-          ['Active', stats.data?.active_protocols],
-          ['Total logs', stats.data?.total_logs],
-        ].map(([label, value]) => (
-          <div key={label} className="px-1 text-center">
-            {stats.isPending ? (
-              <Skeleton className="mx-auto h-6 w-8" />
-            ) : (
-              <p className="text-xl font-extrabold text-teal">{value ?? 0}</p>
-            )}
-            <p className="text-[11px] text-tx3-body">{label}</p>
-          </div>
-        ))}
-      </div>
+      {hasAccess && (
+        <div className="card mb-2.5 grid grid-cols-3 divide-x divide-hairline p-4">
+          {[
+            ['Protocols', stats.data?.total_protocols],
+            ['Active', stats.data?.active_protocols],
+            ['Total logs', stats.data?.total_logs],
+          ].map(([label, value]) => (
+            <div key={label} className="px-1 text-center">
+              {stats.isPending ? (
+                <Skeleton className="mx-auto h-6 w-8" />
+              ) : (
+                <p className="text-xl font-extrabold text-teal">{value ?? 0}</p>
+              )}
+              <p className="text-[11px] text-tx3-body">{label}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <section className="card mb-2.5 px-4 py-1">
         <InfoRow icon={Mail} label="Email" value={user.email} />
@@ -83,10 +138,10 @@ function ProfileContent({ user }) {
         <InfoRow
           icon={Star}
           label="Plan"
-          value={hasAccess ? (access.is_trial ? 'Trial' : 'Pro') : 'Free'}
+          value={copy.plan}
           valueClass={hasAccess ? 'text-teal' : 'text-tx2'}
         />
-        {hasAccess && access.days_remaining != null && (
+        {showCountdown && (
           <InfoRow
             icon={CalendarClock}
             label={access.is_trial ? 'Trial ends in' : 'Access ends in'}
@@ -97,49 +152,37 @@ function ProfileContent({ user }) {
       </section>
 
       <section className="card mb-2.5 p-4">
-        <p className="mb-1.5 text-[13px] font-semibold text-tx">
-          {access?.is_lifetime
-            ? 'You own Peptora'
-            : hasAccess
-              ? access.is_trial
-                ? 'You are on the free trial'
-                : 'Your access is active'
-              : access?.is_revoked
-                ? 'Your access has been withdrawn'
-                : 'No licence yet'}
-        </p>
-        <p className="mb-3.5 text-[12px] leading-5 text-tx3-body">
-          {access?.is_lifetime
-            ? 'A one-time purchase. There is no renewal, no expiry and nothing to cancel.'
-            : hasAccess
-              ? 'When your trial ends the app locks. Peptora is a one-time purchase — buy it once and it is yours.'
-              : access?.is_revoked
-                ? 'Get in touch and we will look into it with you.'
-                : 'One payment unlocks the encyclopedia, calculator, protocols and cycle tracker, permanently.'}
-        </p>
+        <p className="mb-1.5 text-[13px] font-semibold text-tx">{copy.title}</p>
+        {copy.text && (
+          <p className="mb-3.5 text-[12px] leading-5 text-tx3-body">{copy.text}</p>
+        )}
         {/* A lifetime licence has nothing to buy, so this becomes a receipt
-            rather than a sales pitch — no button at all. */}
+            rather than a sales pitch, with no button at all. */}
         {!access?.is_lifetime && (
           <Button
             href="/app/billing"
             variant={hasAccess ? 'secondary' : 'primary'}
             fullWidth
           >
-            {hasAccess ? 'Unlock permanently' : 'Unlock Peptora'}
+            {hasAccess ? 'Buy once on the web' : 'See Peptora Pro'}
           </Button>
         )}
       </section>
 
-      <p className="card mb-4 p-4 text-[12px] leading-5 text-tx3-body italic">
-        Peptora is for research and educational use only. Nothing here
-        constitutes medical advice. Always consult a qualified healthcare
-        professional.
+      <p className="card mb-4 p-4 text-[12px] leading-5 text-tx3-body">
+        Peptora is a tracking and reference tool. It records the schedule you
+        set and does not recommend doses. Nothing here is medical advice.
+        Talk to a qualified clinician about your own protocol.
       </p>
 
-      <Button variant="danger" onClick={() => setConfirmLogout(true)} fullWidth>
-        <LogOut size={15} aria-hidden="true" />
-        Log out
-      </Button>
+      <div className="space-y-2.5">
+        <Button variant="secondary" onClick={() => setConfirmLogout(true)} fullWidth>
+          <LogOut size={15} aria-hidden="true" />
+          Log out
+        </Button>
+
+        <DeleteAccount user={user} onDeleted={onDeleted} />
+      </div>
 
       <ConfirmDialog
         open={confirmLogout}
@@ -155,13 +198,24 @@ function ProfileContent({ user }) {
 
 export default function Profile() {
   const { user } = useSession()
+  // Held here, above the session check: once the account is deleted there is
+  // no session, and the confirmation must stay on screen regardless.
+  const [deleted, setDeleted] = useState(null)
+
+  if (deleted) {
+    return (
+      <div className="mx-auto max-w-[560px]">
+        <DeletedNotice subscriptionActive={deleted.subscriptionActive} />
+      </div>
+    )
+  }
 
   return (
     <AuthGate
       title="Log in to view your profile"
       subtitle="Your account, protocols and dose history live here."
     >
-      {user && <ProfileContent user={user} />}
+      {user && <ProfileContent user={user} onDeleted={setDeleted} />}
     </AuthGate>
   )
 }

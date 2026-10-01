@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
-import SyringeVisual from '@/components/SyringeVisual'
-import { WarningsCallout, FrequencyNote } from './Callouts'
+import { useRef, useState } from 'react'
+import { Droplet, Minus, Plus } from 'lucide-react'
+import { trimNum } from '@/lib/format'
+import HoldButton from '@/components/ui/HoldButton'
+import VialSyringe from './VialSyringe'
+import { WarningsCallout } from './Callouts'
 
 const MAX_DOSES_PER_DAY = 12
 
@@ -20,8 +22,27 @@ function StatCard({ label, value, highlight }) {
   )
 }
 
-export default function ResultsPanel({ result, peptideName }) {
+/**
+ * The figures for one calculation, with the vial and syringe picture.
+ *
+ * `visual={false}` leaves the picture out, for a caller that draws its own
+ * (the calculator keeps it on screen before there is a result). `visualRef`
+ * hands the picture to a caller that wants to replay the draw itself, and
+ * `preview={false}` drops the hold button for a caller that has one already
+ * (the protocol page, whose "Hold to log" button drives the same picture).
+ */
+export default function ResultsPanel({
+  result,
+  peptideName,
+  vialMg,
+  waterMl,
+  visual = true,
+  preview = true,
+  visualRef,
+}) {
   const [dosesPerDay, setDosesPerDay] = useState(1)
+  const ownRef = useRef(null)
+  const pictureRef = visualRef ?? ownRef
 
   if (!result?.ok) return null
 
@@ -31,7 +52,6 @@ export default function ResultsPanel({ result, peptideName }) {
     target_dose_label,
     doses_per_vial,
     recommended_water_ml,
-    suggested_frequency,
     warnings,
     mode,
   } = result
@@ -42,8 +62,11 @@ export default function ResultsPanel({ result, peptideName }) {
   const days = dosesPerDay > 0 ? Math.round(doses_per_vial / dosesPerDay) : null
   const durationNote =
     days != null
-      ? `~${doses_per_vial.toLocaleString()} doses · ~${days} day${days !== 1 ? 's' : ''} at ${dosesPerDay}/day`
-      : `~${doses_per_vial.toLocaleString()} doses`
+      ? `About ${doses_per_vial.toLocaleString()} doses, about ${days} day${days !== 1 ? 's' : ''} at ${dosesPerDay} a day`
+      : `About ${doses_per_vial.toLocaleString()} doses`
+
+  const units = syringe.draw_units
+  const canPreview = units > 0 && units <= syringe.capacity_units
 
   return (
     <section
@@ -51,20 +74,20 @@ export default function ResultsPanel({ result, peptideName }) {
       className="mt-6 rounded-card border border-teal/18 bg-surface p-4 md:p-[18px]"
     >
       <h2 className="mb-3 text-base font-bold text-tx">
-        {peptideName ? `Results for ${peptideName}` : 'Results'}
+        {peptideName ? `Calculation for ${peptideName}` : 'Calculation'}
       </h2>
 
       <div className="grid grid-cols-2 gap-2">
         <StatCard label="Concentration" value={concentration_label} />
-        <StatCard label="Target dose" value={target_dose_label} />
+        <StatCard label="Your dose" value={target_dose_label} />
         {mode === 'inverse' && recommended_water_ml != null && (
           <StatCard
-            label="Add BAC water"
+            label="Water volume"
             value={`${recommended_water_ml} mL`}
             highlight
           />
         )}
-        <StatCard label="Doses / vial" value={String(doses_per_vial)} />
+        <StatCard label="Doses per vial" value={String(doses_per_vial)} />
       </div>
 
       <div className="mt-2 grid grid-cols-2 gap-2">
@@ -76,7 +99,7 @@ export default function ResultsPanel({ result, peptideName }) {
         </div>
         <div className="rounded-[10px] border border-teal/25 bg-teal/8 p-3.5 text-center">
           <p className="font-mono text-2xl font-bold text-teal">
-            {syringe.draw_units.toFixed(1)}
+            {units.toFixed(1)}
           </p>
           <p className="mt-0.5 text-[11px] text-tx3-body">
             units on {syringe.type}
@@ -84,10 +107,30 @@ export default function ResultsPanel({ result, peptideName }) {
         </div>
       </div>
 
-      <SyringeVisual
-        units={syringe.draw_units}
-        maxUnits={syringe.capacity_units}
-      />
+      {visual && (
+        <div className="mt-4 rounded-[10px] border border-hairline bg-white/4 p-3.5">
+          <VialSyringe
+            ref={pictureRef}
+            vialMg={vialMg > 0 ? vialMg : 0}
+            waterMl={waterMl > 0 ? waterMl : 0}
+            units={units}
+            maxUnits={syringe.capacity_units}
+            syringeType={syringe.type}
+          />
+          {preview && (
+            <HoldButton
+              className="mt-3"
+              icon={Droplet}
+              label="Hold to preview the draw"
+              holdingLabel="Drawing"
+              doneLabel={`Drawn to ${trimNum(units, 1)} units`}
+              duration={1100}
+              disabled={!canPreview}
+              onProgress={(p) => pictureRef.current?.setProgress(p)}
+            />
+          )}
+        </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
         <p className="text-[13px] text-tx2">{durationNote}</p>
@@ -102,7 +145,7 @@ export default function ResultsPanel({ result, peptideName }) {
             <Minus size={14} aria-hidden="true" />
           </button>
           <span className="min-w-[64px] text-center font-mono text-[13px] text-tx">
-            {dosesPerDay}/day
+            {dosesPerDay} a day
           </span>
           <button
             type="button"
@@ -116,7 +159,6 @@ export default function ResultsPanel({ result, peptideName }) {
         </div>
       </div>
 
-      <FrequencyNote frequency={suggested_frequency} />
       <WarningsCallout warnings={warnings} />
     </section>
   )

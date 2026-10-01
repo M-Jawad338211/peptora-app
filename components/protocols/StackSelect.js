@@ -109,7 +109,7 @@ export default function StackSelect({ value, onChange }) {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search blends…"
+                placeholder="Search blends"
                 aria-label="Search blends"
                 className="w-full rounded-[10px] border border-hairline bg-navy py-2.5 pr-3 pl-9 text-[15px] text-tx placeholder:text-tx3-body"
               />
@@ -117,7 +117,7 @@ export default function StackSelect({ value, onChange }) {
 
             <ul className="max-h-[52dvh] overflow-y-auto p-2">
               {isPending && (
-                <li className="p-4 text-sm text-tx3-body">Loading blends…</li>
+                <li className="p-4 text-sm text-tx3-body">Loading blends</li>
               )}
               {!isPending && filtered.length === 0 && (
                 <li className="p-4 text-sm text-tx3-body">

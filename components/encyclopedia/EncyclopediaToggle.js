@@ -20,7 +20,7 @@ export default function EncyclopediaToggle() {
     }`
 
   return (
-    <div role="tablist" aria-label="Encyclopedia section" className="mb-4 flex gap-2">
+    <div role="tablist" aria-label="Library section" className="mb-4 flex gap-2">
       <Link href="/app/encyclopedia" role="tab" aria-selected={!isStacks} className={tabClass(!isStacks)}>
         Peptides
       </Link>

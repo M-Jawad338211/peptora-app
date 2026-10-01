@@ -107,7 +107,7 @@ export default function LoginPage() {
         )}
 
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Logging in…' : 'Log in'}
+          {loading ? 'Logging in' : 'Log in'}
         </Button>
       </form>
     </AuthCard>

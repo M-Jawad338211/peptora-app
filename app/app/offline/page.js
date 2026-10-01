@@ -12,9 +12,9 @@ export default function OfflinePage() {
       <WifiOff size={44} strokeWidth={1.4} aria-hidden="true" className="mb-4 text-tx3" />
       <h1 className="mb-2 text-xl font-bold text-tx">You&apos;re offline</h1>
       <p className="max-w-[40ch] text-sm leading-6 text-tx3-body">
-        This page isn&apos;t available offline. The encyclopedia you&apos;ve
-        already viewed still works — anything that needs your account will
-        return once you reconnect.
+        This page isn&apos;t available offline. Pages you have already
+        opened still work, and anything that needs your account will return
+        once you reconnect.
       </p>
     </main>
   )

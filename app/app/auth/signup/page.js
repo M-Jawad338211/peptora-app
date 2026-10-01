@@ -148,7 +148,7 @@ export default function SignupPage() {
         )}
 
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Creating account…' : 'Create account'}
+          {loading ? 'Creating account' : 'Create account'}
         </Button>
       </form>
     </AuthCard>

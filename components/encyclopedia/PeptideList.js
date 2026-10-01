@@ -37,7 +37,7 @@ export default function PeptideList({ peptides }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, category, tag…"
+          placeholder="Search by name, category or tag"
           aria-label="Search peptides"
           autoCorrect="off"
           autoCapitalize="none"

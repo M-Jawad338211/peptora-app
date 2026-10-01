@@ -6,7 +6,7 @@ export default function PeptideNotFound() {
     <EmptyState
       icon={BookOpen}
       title="Peptide not found"
-      body="This entry doesn't exist in the encyclopedia. It may have been renamed or removed."
+      body="This entry doesn't exist in the library. It may have been renamed or removed."
       action={{ label: 'Browse encyclopedia', href: '/app/encyclopedia' }}
     />
   )

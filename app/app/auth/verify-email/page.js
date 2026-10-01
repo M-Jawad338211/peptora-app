@@ -77,7 +77,7 @@ function VerifyEmailForm() {
       subtitle="Enter the 6-digit code we sent to your email address."
       footer={
         <Link href="/app/auth/login" className="text-tx3-body no-underline">
-          ← Back to login
+          Back to login
         </Link>
       }
     >
@@ -120,7 +120,7 @@ function VerifyEmailForm() {
         )}
 
         <Button type="submit" disabled={loading || otp.length !== 6} fullWidth>
-          {loading ? 'Verifying…' : 'Verify email'}
+          {loading ? 'Verifying' : 'Verify email'}
         </Button>
       </form>
 

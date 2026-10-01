@@ -94,7 +94,7 @@ export default function ClaimForm({ price, currency, slaHours = 24, onDone }) {
           hours waits; one who expected instant access emails support in ten
           minutes, and then there are two problems. */}
       <p className="mb-5 text-[13px] leading-6 text-tx3-body">
-        A person checks every payment, so access is not instant — usually within{' '}
+        A person checks every payment, so access is not instant. It is usually within{' '}
         <strong className="text-tx2">{window}</strong>. We will email you as soon
         as it is done.
       </p>
@@ -210,7 +210,7 @@ export default function ClaimForm({ price, currency, slaHours = 24, onDone }) {
       )}
 
       <Button type="submit" fullWidth className="mt-5" disabled={submit.isPending}>
-        {submit.isPending ? 'Sending…' : 'Submit for review'}
+        {submit.isPending ? 'Sending' : 'Submit for review'}
       </Button>
     </form>
   )

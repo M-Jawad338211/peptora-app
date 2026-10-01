@@ -197,7 +197,6 @@ body {
   height: 7px;
   border-radius: 50%;
   background: var(--teal);
-  box-shadow: 0 0 7px var(--teal);
   flex-shrink: 0;
 }
 
@@ -249,11 +248,6 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 7px;
-}
-
-.privacy-summary-icon {
-  font-size: 15px;
-  line-height: 1;
 }
 
 .privacy-summary-label {
@@ -364,10 +358,9 @@ body {
 
 .privacy-footer-nav a:first-child {
   color: var(--color-on-teal);
-  background: linear-gradient(135deg, #00d68f, #00f0a0);
+  background: var(--color-teal);
   border-color: transparent;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 214, 143, 0.22);
 }
 
 @media (max-width: 760px) {

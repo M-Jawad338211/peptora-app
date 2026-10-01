@@ -13,7 +13,9 @@ function fmtUnits(n) {
  * an end (how much water to add) — and then rounded their answer away.
  *
  * Each card is an outcome computed forward from a real volume, so the units
- * shown are the units they will get.
+ * shown are the units they will get. The one tagged "Easiest to read" is the
+ * volume that puts the draw closest to 20 units on the barrel: a statement
+ * about the syringe scale, not about the dose.
  */
 export default function DilutionPicker({
   dilution,
@@ -22,14 +24,14 @@ export default function DilutionPicker({
   syringeType = 'U-100',
   doseLabel,
 }) {
-  const label = 'How much BAC water to add?'
+  const label = 'Water volume'
 
   if (!dilution?.options?.length) {
     return (
       <div>
         <p className="eyebrow mb-1.5">{label}</p>
         <p className="text-[13px] leading-5 text-tx3-body">
-          Enter a vial strength and target dose to see your options.
+          Enter the vial amount and your dose to compare volumes.
         </p>
       </div>
     )
@@ -55,9 +57,9 @@ export default function DilutionPicker({
               role="radio"
               aria-checked={active}
               onClick={() => onChange(o.water_ml)}
-              aria-label={`Add ${o.water_ml} millilitres — draw ${units} units per dose${
+              aria-label={`Add ${o.water_ml} millilitres, draw ${units} units per dose${
                 note ? `, ${note.toLowerCase()}` : ''
-              }${recommended ? ', recommended' : ''}`}
+              }${recommended ? ', easiest to read' : ''}`}
               className={`min-h-[76px] rounded-[10px] border px-2 py-2.5 text-center transition-colors ${
                 active
                   ? 'border-teal bg-teal/12'
@@ -83,16 +85,16 @@ export default function DilutionPicker({
                       : 'text-tx3-body'
                 }`}
               >
-                {note ?? (recommended ? 'Recommended' : ' ')}
+                {note ?? (recommended ? 'Easiest to read' : ' ')}
               </span>
             </button>
           )
         })}
       </div>
       <p className="mt-2 text-[12px] leading-5 text-tx3-body">
-        Every option gives the same{doseLabel ? ` ${doseLabel}` : ''} dose — more
+        Every option gives the same{doseLabel ? ` ${doseLabel}` : ''} dose. More
         water only spreads it across more units on the barrel, which is easier to
-        measure accurately.
+        read.
       </p>
     </div>
   )

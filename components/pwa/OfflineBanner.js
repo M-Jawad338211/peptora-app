@@ -29,7 +29,7 @@ export default function OfflineBanner() {
       className="flex items-center justify-center gap-2 bg-warn/15 px-4 py-2 text-[13px] text-warn"
     >
       <WifiOff size={14} aria-hidden="true" />
-      You&apos;re offline — changes won&apos;t save until you reconnect.
+      You&apos;re offline. Changes won&apos;t save until you reconnect.
     </div>
   )
 }

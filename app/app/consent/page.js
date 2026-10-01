@@ -6,33 +6,34 @@ import { useLogout } from '@/lib/auth/session'
 import Button from '@/components/ui/Button'
 
 /**
- * Consent interstitial, ported from peptora-android/app/consent.js.
- * Copy is reproduced verbatim — it is a legal agreement.
+ * Consent interstitial. The sections say the same thing, in the same words,
+ * as peptora-android/app/consent.js: it is one agreement for one account, so
+ * the two must not drift apart.
  */
 const SECTIONS = [
   {
-    title: 'Research Use Only',
-    body: 'Peptora is intended solely for informational and research purposes. All content and calculations are for educational use only and do not constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making any decisions about peptide use.',
+    title: 'What Peptora is',
+    body: 'Peptora is a tracking and reference tool. It records the schedule you set for yourself and keeps your log. It does not recommend doses, and it does not sell peptides or medication.',
   },
   {
-    title: 'No Medical Advice',
-    body: 'Nothing in this app should be interpreted as medical advice. The dosage calculations and peptide information provided are based on publicly available research and are not reviewed or approved by the FDA or any other regulatory authority.',
+    title: 'Not medical advice',
+    body: 'Nothing in Peptora is medical advice, diagnosis or treatment. The library summarises published research and regulatory documents for educational reading, and links to its sources. It has not been reviewed or approved by the FDA or any other regulator. Talk to a qualified clinician about your own protocol.',
   },
   {
-    title: 'Age Requirement',
-    body: 'You must be at least 18 years of age to use Peptora. By accepting these terms you confirm that you meet this age requirement.',
+    title: 'The calculator',
+    body: 'The reconstitution calculator does arithmetic on numbers you enter. It never fills in an amount for you. Check every figure yourself before you rely on it.',
   },
   {
-    title: 'Assumption of Risk',
-    body: 'Use of peptides carries inherent risks. Peptora assumes no liability for any harm, injury, or adverse effects resulting from the use of information provided in this app. You use this app entirely at your own risk.',
+    title: 'Age',
+    body: 'You must be at least 18 years old to use Peptora. By accepting these terms you confirm that you are.',
   },
   {
-    title: 'Privacy',
-    body: 'We collect your email, usage data, and cycle logs solely to provide and improve the Peptora service. We do not sell your data to third parties.',
+    title: 'Your data',
+    body: 'Peptora stores your email address, your protocols and your log so that it can show them to you. It does not sell your data. You can delete your account, and everything stored with it, at any time from Profile.',
   },
   {
-    title: 'Changes to Terms',
-    body: 'Peptora reserves the right to update these terms at any time. Continued use of the app after changes constitutes acceptance of the new terms.',
+    title: 'Changes to these terms',
+    body: 'These terms may be updated. Continuing to use Peptora after a change means you accept the updated terms.',
   },
 ]
 
@@ -96,14 +97,14 @@ export default function ConsentPage() {
         )}
 
         <Button onClick={handleAccept} disabled={loading} size="lg" fullWidth>
-          {loading ? 'Saving…' : 'I agree and continue'}
+          {loading ? 'Saving' : 'I agree and continue'}
         </Button>
 
         {confirmDecline ? (
           <div className="mt-4 rounded-[12px] border border-danger/25 bg-danger/8 p-4">
             <p className="mb-3 text-sm leading-6 text-tx2">
-              Declining signs you out. You can still browse the encyclopedia
-              and use the calculator without an account.
+              An account needs these terms accepted. Declining signs you
+              out.
             </p>
             <div className="flex gap-2">
               <Button onClick={logout} variant="danger" size="sm">

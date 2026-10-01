@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
+import { Monitor, Smartphone } from 'lucide-react'
 
 const noopSubscribe = () => () => {}
 
@@ -25,20 +26,20 @@ function usePlatform() {
 const STEPS = {
   android: [
     'Open peptora.io in Chrome.',
-    'Tap the ⋮ menu in the top-right.',
-    'Choose “Install app” or “Add to Home screen”.',
-    'Confirm — Peptora appears alongside your other apps.',
+    'Tap the menu button (three dots) in the top-right.',
+    'Choose "Install app" or "Add to Home screen".',
+    'Confirm. Peptora appears alongside your other apps.',
   ],
   ios: [
-    'Open peptora.io in Safari (not Chrome — only Safari can install).',
+    'Open peptora.io in Safari. Only Safari can install a web app on iPhone and iPad.',
     'Tap the Share button at the bottom of the screen.',
-    'Scroll down and choose “Add to Home Screen”.',
-    'Tap Add — Peptora appears on your home screen.',
+    'Scroll down and choose "Add to Home Screen".',
+    'Tap Add. Peptora appears on your home screen.',
   ],
   desktop: [
     'Open peptora.io in Chrome, Edge or Arc.',
     'Click the install icon in the address bar.',
-    'Confirm — Peptora opens in its own window.',
+    'Confirm. Peptora opens in its own window.',
   ],
 }
 
@@ -64,16 +65,22 @@ export default function DownloadPage() {
     <>
       <div className="mx-auto max-w-[680px] px-7 pt-16 pb-20">
         <div className="text-center">
-          <div className="mb-5 text-5xl" aria-hidden="true">
-            {platform === 'android' ? '🤖' : platform === 'ios' ? '🍎' : '🖥️'}
+          <div className="mb-5 flex justify-center" aria-hidden="true">
+            <span className="flex size-16 items-center justify-center rounded-[18px] border border-teal/25 bg-teal/10">
+              {platform === 'desktop' ? (
+                <Monitor size={30} className="text-teal" strokeWidth={1.6} />
+              ) : (
+                <Smartphone size={30} className="text-teal" strokeWidth={1.6} />
+              )}
+            </span>
           </div>
           <h1 className="mb-3 font-display text-4xl text-tx">
             Install Peptora on {LABEL[platform]}
           </h1>
           <p className="mb-8 text-[15px] leading-7 text-tx3-body">
-            Peptora installs straight from the browser — no app store, no
-            download. It runs full-screen with its own icon, and the peptide
-            encyclopedia stays readable offline.
+            The web version of Peptora installs straight from the browser.
+            It runs full-screen with its own icon, and pages you have already
+            opened stay readable offline.
           </p>
         </div>
 
@@ -109,15 +116,15 @@ export default function DownloadPage() {
               Prefer not to install?{' '}
               <Link href="/app/home" className="text-teal no-underline">
                 Use Peptora in your browser
-              </Link>{' '}
-              — everything works the same.
+              </Link>
+              . Everything works the same.
             </p>
           </>
         )}
 
         <p className="mt-10 text-center text-[12px] leading-5 text-tx3-body">
-          Native Android and iOS apps are on the way. Until they land, the
-          installed web app is the full Peptora experience.
+          Native Android and iOS apps are on the way. Until they are out,
+          the installed web app is the full Peptora.
         </p>
       </div>
     </>

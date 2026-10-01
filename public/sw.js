@@ -10,12 +10,10 @@
  * Bump VERSION on any deploy that changes the shell; `activate` purges every
  * cache that does not carry the current version.
  */
-// v3 drops the encyclopedia cache. /api/peptides and /api/stacks used to be
-// unauthenticated and were cached stale-while-revalidate; they now sit behind
-// the licence gate, and a cached copy would keep serving the encyclopedia to a
-// lapsed user straight out of CacheStorage — a paywall bypass for anyone who
-// had visited before. The version bump is what evicts those existing entries.
-const VERSION = 'v3'
+// v4: the shell changed (navigation, the free library and calculator, the
+// /app entry route), so cached pages from v3 are evicted. Nothing under /api
+// is cached, in any version: see the fetch handler below.
+const VERSION = 'v4'
 const SHELL_CACHE = `peptora-shell-${VERSION}`
 const STATIC_CACHE = `peptora-static-${VERSION}`
 const CURRENT = [SHELL_CACHE, STATIC_CACHE]
@@ -56,9 +54,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  // Nothing under /api is ever cached. Every endpoint is now either
-  // authenticated or licence-gated, so a cached response is a response served
-  // to someone who may no longer be entitled to it.
+  // Nothing under /api is ever cached. Almost every endpoint is tied to an
+  // account, so a cached response is a response served to someone who may no
+  // longer be signed in or entitled to it.
   if (url.pathname.startsWith(API_PREFIX)) return
 
   if (request.mode === 'navigate') {

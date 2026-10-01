@@ -12,8 +12,8 @@ import Button from '@/components/ui/Button'
  * broken screen.
  */
 export function PlanPrompt({
-  title = 'Unlock Peptora to continue',
-  subtitle = 'Your trial has ended. One payment unlocks every tool, permanently — no subscription and nothing to cancel.',
+  title = 'This is part of Peptora Pro',
+  subtitle = 'Protocols, the tracker and your history are part of Peptora Pro. The library and the calculator stay free.',
 }) {
   const pathname = usePathname()
 
@@ -29,11 +29,8 @@ export function PlanPrompt({
       <p className="mb-6 max-w-[38ch] text-sm leading-6 text-tx3-body">
         {subtitle}
       </p>
-      {/* One route out, not two. The encyclopedia is behind the same gate now,
-          so offering it as an alternative would send the user to another
-          paywall. */}
       <Button href={`/app/billing?next=${encodeURIComponent(pathname)}`}>
-        See how to unlock
+        See Peptora Pro
       </Button>
       <p className="mt-5 max-w-[40ch] text-[12px] leading-5 text-tx3-body">
         Everything you have saved stays exactly where it is.
@@ -49,10 +46,10 @@ export function PlanPrompt({
  * problem with a different fix, and showing a paywall to someone who simply
  * needs to log in sends them to pay for access they may already have.
  *
- * Since the move to a paid app shell this is defence-in-depth rather than the
- * primary gate — app/app/(shell)/layout.js redirects before a page under it
- * ever renders. It still matters for client-side navigation and for a session
- * that goes stale mid-visit.
+ * This is defence-in-depth rather than the primary gate:
+ * app/app/(shell)/layout.js redirects before a page under it ever renders. It
+ * still matters for client-side navigation and for a session that goes stale
+ * mid-visit.
  *
  * `access.has_access` is computed by the API and never recomputed here. The
  * two clocks disagree — a browser minutes ahead of the server would paywall a

@@ -1,15 +1,17 @@
 'use client'
 import { useState } from 'react'
+import { Check } from 'lucide-react'
+import { SUPPORT_EMAIL } from '@/lib/site'
 
 const SUBJECTS = [
   'General inquiry',
   'Technical issue',
+  'Account or data deletion',
+  'Subscription or payment',
   'Feature request',
   'Report a bug',
   'Other',
 ]
-
-const SUPPORT_EMAIL = 'info@peptora.io'
 
 export default function SupportPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' })
@@ -117,8 +119,10 @@ export default function SupportPage() {
               width: '56px', height: '56px', borderRadius: '50%',
               background: 'rgba(0,214,143,0.1)', border: '1px solid rgba(0,214,143,0.25)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px', fontSize: '24px',
-            }}>✓</div>
+              margin: '0 auto 20px',
+            }}>
+              <Check size={24} aria-hidden="true" color="var(--teal)" />
+            </div>
             <h2 style={{
               fontFamily: 'Georgia, serif', fontSize: '26px',
               color: 'var(--tx)', fontWeight: 400, marginBottom: '10px',
@@ -127,7 +131,7 @@ export default function SupportPage() {
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--tx2)', fontWeight: 300, lineHeight: 1.6 }}>
               Thanks, <strong style={{ color: 'var(--tx)', fontWeight: 500 }}>{form.name}</strong>. Your email app should have opened with the
-              message ready — press send and we&apos;ll reply to{' '}
+              message ready. Press send and we&apos;ll reply to{' '}
               <strong style={{ color: 'var(--teal)', fontWeight: 400 }}>{form.email}</strong>.<br />
               If nothing opened, email us directly at{' '}
               <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: 'var(--teal)' }}>{SUPPORT_EMAIL}</a>.
@@ -192,7 +196,7 @@ export default function SupportPage() {
               <div style={{ marginBottom: '28px' }}>
                 <label style={labelStyle}>MESSAGE</label>
                 <textarea
-                  placeholder="Describe your issue or question..."
+                  placeholder="Describe your issue or question"
                   value={form.message}
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   rows={5}
@@ -207,16 +211,15 @@ export default function SupportPage() {
                 disabled={loading}
                 style={{
                   width: '100%', padding: '14px',
-                  background: loading ? 'var(--sl)' : 'linear-gradient(135deg, #00d68f, #00f0a0)',
+                  background: loading ? 'var(--sl)' : 'var(--teal)',
                   color: loading ? 'var(--tx3)' : '#021a0e',
                   border: 'none', borderRadius: '11px',
                   fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600,
                   cursor: loading ? 'default' : 'pointer',
-                  boxShadow: loading ? 'none' : '0 4px 14px rgba(0,214,143,0.22)',
                   transition: 'opacity 0.15s',
                 }}
               >
-                {loading ? 'Sending…' : 'Send message'}
+                {loading ? 'Sending' : 'Send message'}
               </button>
             </form>
           </div>
@@ -226,9 +229,9 @@ export default function SupportPage() {
           fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--tx3)',
           textAlign: 'center', marginTop: '28px',
         }}>
-          For urgent issues, email us directly at{' '}
-          <a href="mailto:support@peptora.app" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
-            support@peptora.app
+          You can also email us directly at{' '}
+          <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: 'var(--teal)', textDecoration: 'none' }}>
+            {SUPPORT_EMAIL}
           </a>
         </p>
       </div>

@@ -2,20 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { NAV_ITEMS, activeNavItem, visibleNavItems } from '@/lib/nav'
+import { activeNavItem, visibleNavItems } from '@/lib/nav'
 import { useSession } from '@/lib/auth/session'
+import Logo from '@/components/Logo'
 
 /**
  * Desktop navigation. Hidden below md, where TabBar takes over.
  *
- * Shows all six destinations, including Calculator and Tracker which don't fit
- * in the four-slot mobile tab bar.
+ * Shows every destination the account can open, including the ones that do
+ * not fit in the four-slot mobile tab bar.
  */
 export default function Sidebar() {
   const pathname = usePathname()
   const active = activeNavItem(pathname)
   const { user } = useSession()
-  const items = visibleNavItems(NAV_ITEMS, !!user?.access?.has_access)
+  const items = visibleNavItems(!!user?.access?.has_access)
 
   return (
     <aside
@@ -23,15 +24,10 @@ export default function Sidebar() {
       className="fixed inset-y-0 left-0 z-40 hidden w-sidebar flex-col border-r border-hairline bg-surface md:flex"
     >
       <Link
-        href={user?.access?.has_access ? '/app/home' : '/app/billing'}
+        href="/app/home"
         className="flex items-center gap-2.5 px-5 py-4 no-underline"
       >
-        <span
-          aria-hidden="true"
-          className="flex size-[34px] items-center justify-center rounded-[9px] border border-teal/25 bg-teal/10 text-base"
-        >
-          🧬
-        </span>
+        <Logo />
         <span className="text-[17px] font-semibold tracking-[-0.2px] text-tx">
           Peptora
         </span>
@@ -61,7 +57,8 @@ export default function Sidebar() {
       </ul>
 
       <p className="mt-auto px-5 py-4 text-[11px] leading-4 text-tx3-body italic">
-        For research and educational use only. Nothing here is medical advice.
+        Peptora records the schedule you set. It does not recommend doses,
+        and nothing here is medical advice.
       </p>
     </aside>
   )

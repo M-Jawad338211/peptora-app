@@ -7,19 +7,20 @@ export const metadata = {
 }
 
 /**
- * The licence gate. Everything under this layout requires a live access
- * window — home, encyclopedia, calculator, protocols, tracker.
+ * The Peptora Pro gate. Everything under this layout needs a live access
+ * window: protocols and the tracker, which is to say everything a user saves.
  *
- * The gate is structural rather than an allowlist of pathnames. Billing,
- * profile, auth and consent all sit OUTSIDE this group, so there is no
- * exception to remember here and no way for a future route to be added to the
- * wrong side of the wall by accident. An allowlist is one forgotten entry away
- * from redirecting a user who has just paid into a loop with no way to tell us.
+ * Home, the library and the calculator are free and live in `(open)`, next
+ * to billing and profile.
+ *
+ * The gate is structural rather than an allowlist of pathnames. Everything
+ * that is free sits OUTSIDE this group, so there is no exception to remember
+ * here and no way for a future route to be added to the wrong side of the wall
+ * by accident. An allowlist is one forgotten entry away from redirecting a
+ * user who has just paid into a loop with no way to tell us.
  *
  * This redirect is UX, not enforcement. The API is the enforcement: every
- * endpoint behind it returns 402 without a licence, including /peptides and
- * /stacks. A locked navigation with open data would only mean the menu is
- * paid.
+ * endpoint behind these screens returns 402 without access.
  *
  * getSession is React-cached, so this shares the parent layout's /auth/me call
  * rather than issuing another.

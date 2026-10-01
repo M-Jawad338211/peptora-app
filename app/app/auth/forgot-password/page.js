@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
 
   const backToLogin = (
     <Link href="/app/auth/login" className="text-tx3-body no-underline">
-      ← Back to login
+      Back to login
     </Link>
   )
 
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
           className="mb-5"
         />
         <Button type="submit" disabled={loading} fullWidth>
-          {loading ? 'Sending…' : 'Send reset link'}
+          {loading ? 'Sending' : 'Send reset link'}
         </Button>
       </form>
     </AuthCard>

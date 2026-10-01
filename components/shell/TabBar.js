@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TAB_ITEMS, activeNavItem, visibleNavItems } from '@/lib/nav'
+import { activeNavItem, tabItems } from '@/lib/nav'
 import { useSession } from '@/lib/auth/session'
 
 /**
@@ -17,7 +17,7 @@ export default function TabBar() {
   const pathname = usePathname()
   const active = activeNavItem(pathname)
   const { user } = useSession()
-  const items = visibleNavItems(TAB_ITEMS, !!user?.access?.has_access)
+  const items = tabItems(!!user?.access?.has_access)
 
   return (
     <nav

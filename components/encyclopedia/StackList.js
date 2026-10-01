@@ -29,7 +29,7 @@ export default function StackList({ stacks }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, category…"
+          placeholder="Search by name or category"
           aria-label="Search stacks"
           autoCorrect="off"
           autoCapitalize="none"

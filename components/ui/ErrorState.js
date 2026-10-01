@@ -26,7 +26,7 @@ export default function ErrorState({ title, message, onRetry, pending }) {
       )}
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry} disabled={pending}>
-          {pending ? 'Retrying…' : 'Try again'}
+          {pending ? 'Retrying' : 'Try again'}
         </Button>
       )}
     </div>

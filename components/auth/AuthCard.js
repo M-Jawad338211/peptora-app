@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 /**
  * Centred auth container. The logo block and card chrome were previously
@@ -12,12 +13,7 @@ export default function AuthCard({ title, subtitle, children, footer }) {
           href="/"
           className="mb-8 flex items-center justify-center gap-2.5 no-underline"
         >
-          <span
-            aria-hidden="true"
-            className="flex size-[34px] items-center justify-center rounded-[9px] border border-teal/25 bg-teal/10 text-base"
-          >
-            🧬
-          </span>
+          <Logo />
           <span className="text-[17px] font-semibold tracking-[-0.2px] text-tx">
             Peptora
           </span>

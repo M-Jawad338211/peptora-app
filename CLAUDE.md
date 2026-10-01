@@ -50,9 +50,10 @@ with no complaint.
 
 ## Key rules
 - All API calls go through `lib/api/index.js`; never `fetch` directly.
-- Server-side reads of the encyclopedia use `lib/api/server.js`, which
-  forwards the session cookie and never caches — those endpoints are licensed
-  now. Anything user-scoped must go through the browser client.
+- Server-side reads of the library use `lib/api/server.js`. `/peptides` and
+  `/stacks` are public on the API; the session cookie is still forwarded when
+  there is one, so the response is not cached. Anything user-scoped must go
+  through the browser client.
 - Mutations must follow the invalidation matrix — deleting a protocol
   cascade-deletes its dose logs, so it invalidates the tracker feed too.
 - `target_dose_mcg` is always micrograms; `unit` is display-only. Render via
@@ -63,15 +64,31 @@ with no complaint.
 - Calculation logic lives in `lib/reconstitution.js`, ported verbatim from
   native and covered by tests. Build the display object with `build_result`,
   never inline.
-- Always show the medical disclaimer on dosing surfaces.
+- Peptora records what the user sets and never suggests an amount. A library
+  entry's reported dose ranges are reference reading on its own page, with
+  their sources; they are never copied into the calculator or a protocol
+  form (`lib/peptideDefaults.js` returns the unit and nothing else).
+- The vial and syringe picture (`components/calculator/VialSyringe.js`,
+  geometry and its tests in `lib/syringe-geometry.js`) is the same instrument
+  the native app draws. It holds no numbers of its own: everything it shows
+  comes from props, dragging the plunger only reports units back, and the
+  calculator turns those into an amount with `mcg_from_units`. A hold button
+  replays the draw through the ref's `setProgress`.
+- `components/ui/HoldButton.js` is the press-and-hold control: the draw
+  preview in the calculator and "Hold to log" on a protocol. A click does
+  nothing; keyboard users hold Space or Enter.
+- User-facing copy uses plain punctuation: no em or en dashes, no arrows, no
+  trailing ellipses, no emoji. Flat colours, no gradients or glows.
+- The support address lives in `lib/site.js`. Do not type it into a page.
 
 ## Structure
 - `app/(marketing)/` — public site: `/`, `/support`, `/privacy-policy`,
   `/download`. Outside the PWA scope. **The only public surface.**
-- `app/app/(shell)/` — LICENCE-GATED product screens in the tab-bar/sidebar
-  chrome: home, encyclopedia (+ `[slug]`, `stacks`), protocols (+ `new`,
-  `[id]`), calculator, tracker.
-- `app/app/(open)/` — same chrome, NO licence gate: `billing`, `profile`.
+- `app/app/(shell)/` — PRO-GATED screens in the tab-bar/sidebar chrome:
+  protocols (+ `new`, `[id]`) and tracker. Everything a user saves.
+- `app/app/(open)/` — same chrome, signed in, NO Pro gate: `home`,
+  `encyclopedia` (+ `[slug]`, `stacks`; shown as "Library"), `calculator`,
+  `billing`, `profile`.
 - `app/app/auth/`, `app/app/consent/` — inside the PWA scope but without
   navigation chrome.
 - `components/shell/` — `AppShell`, `TabBar` (<768px), `Sidebar` (≥768px).
@@ -96,10 +113,21 @@ variants are re-composited at 80% on a background sampled from the artwork —
 a plain resize is clipped by Android's circular mask.
 
 ## The paywall
-Peptora is a **one-time purchase**, verified by a human. There is no gateway:
-the user transfers money, files a claim with a receipt at `/app/billing`, and
-an admin approves it in `../peptora-admin`. New accounts get a 14-day trial at
-email verification, bound to the signup device.
+**The library and the calculator are free. Peptora Pro is what a user saves:
+protocols, the tracker and history.** This is the same split as the native
+app, where App Review requires it.
+
+On the web, Pro is a **one-time purchase**, verified by a human. There is no
+gateway: the user transfers money, files a claim with a receipt at
+`/app/billing`, and an admin approves it in `../peptora-admin`. New accounts
+created on the web get a 14-day trial of Pro at email verification, bound to
+the signup device.
+
+In the iPhone app, Pro is an **App Store subscription**. An account that has
+one arrives here with `access.is_subscription` true and `has_access` true.
+The web never sells or cancels that subscription; Billing and Profile only
+say that it exists and where it is managed. `TrialBanner` and the Profile
+countdown stay quiet for it, because a subscription renews by itself.
 
 `user.access.has_access` comes from the API and is the **only** thing to gate
 *feature access* on. Never recompute it from the dates client-side; the two
@@ -112,7 +140,7 @@ Profile's "Unlock permanently" button sends a trial user there specifically
 to buy early, and gating the purchase flow on `has_access` (instead of
 `is_lifetime`) turns that into a header claiming "you own this outright"
 with no price, no bank details and no way to actually pay. Everywhere else
-in the app (`PlanGate`, `CalculatorGate`, `Home`, `TrialBanner`) `has_access`
+in the app (`PlanGate`, `Home`, `TrialBanner`) `has_access`
 is exactly the right test — those screens ask "can this user use the tool
 right now," and a trial answers that the same as a purchase. Only
 `components/billing/Billing.js` needs `is_lifetime`, because it is the only
@@ -121,23 +149,27 @@ Fixed 2026-09-09 — see git history on that file before assuming `hasAccess`
 is safe to reach for there again.
 
 - **The gate is structural, not an allowlist.** `(shell)/layout.js` redirects
-  unconditionally; anything reachable without a licence lives in `(open)/`.
+  unconditionally; anything reachable without Pro lives in `(open)/`.
   Adding a route to the wrong group is the failure mode to watch for — an
   allowlist is one forgotten entry from trapping a user who has just paid.
-- The server redirect is UX. The API is the enforcement: every product
-  endpoint 402s, `/peptides` and `/stacks` included.
-- `lib/api/server.js` forwards the session cookie and uses `no-store`. It used
-  to be uncredentialed and cached; with the encyclopedia gated, a shared cache
-  keyed only by URL would serve one user's authorised response to the next.
-- `public/sw.js` caches NOTHING under `/api/`. It used to hold
-  `/api/peptides*` stale-while-revalidate, which after gating would have kept
-  serving the encyclopedia to lapsed users straight out of CacheStorage.
-  **Bump `VERSION` on any change here** — that is what evicts old entries.
-- `PlanGate` and `CalculatorGate` are now defence-in-depth behind the layout
-  redirect, kept for client-side navigation and sessions that lapse mid-visit.
-- `TrialBanner` hides itself for `is_lifetime` — a purchase has no countdown.
-- `visibleNavItems()` hides gated destinations from users without a licence,
-  so the paywall does not show a menu where every link bounces back to it.
+- The server redirect is UX. The API is the enforcement: protocols, the
+  tracker and calculation history all answer 402 without Pro. `/peptides`
+  and `/stacks` are public.
+- `lib/api/server.js` forwards the session cookie and uses `no-store`.
+- `public/sw.js` caches NOTHING under `/api/`. **Bump `VERSION` on any change
+  to the shell** — that is what evicts old entries.
+- `PlanGate` is defence-in-depth behind the layout redirect, kept for
+  client-side navigation and sessions that lapse mid-visit. `CalculatorGate`
+  only asks for a signed-in account: the calculator is free, and saving a
+  calculation is the Pro part (the Save button is hidden without Pro).
+- `TrialBanner` hides itself for `is_lifetime` and `is_subscription`.
+- `visibleNavItems()` and `tabItems()` in `lib/nav.js` hide Pro destinations
+  from an account without Pro, so the paywall does not show a menu where every
+  link bounces back to it.
+- Account deletion is on the Profile page (`components/profile/
+  DeleteAccount.js`) and calls `POST /auth/delete-account`, the same endpoint
+  the native app uses. The privacy policy describes this flow; keep the two
+  in step.
 - Waiting is the real risk: approval takes hours. `ClaimStatus` polls every
   30s (not 3s — the scale is human), pauses when the tab is hidden, and
   refetches the session on approval because `useSession` caches for 5 minutes.

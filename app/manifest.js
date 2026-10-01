@@ -4,7 +4,7 @@ export default function manifest() {
     name: 'Peptora',
     short_name: 'Peptora',
     description:
-      'Peptide reconstitution calculator, protocol tracker and research encyclopedia.',
+      'Peptide protocol tracker with a cited reference library and a reconstitution calculator.',
     // Installing drops the user straight into the app, never the marketing site.
     start_url: '/app/home',
     // Scoped to /app so marketing pages are not part of the installed app.
@@ -13,7 +13,7 @@ export default function manifest() {
     orientation: 'portrait',
     background_color: '#1a2535',
     theme_color: '#1a2535',
-    categories: ['health', 'medical', 'education'],
+    categories: ['health', 'productivity', 'education'],
     icons: [
       { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
@@ -31,9 +31,9 @@ export default function manifest() {
       },
     ],
     shortcuts: [
-      { name: 'Dose calculator', url: '/app/calculator' },
       { name: 'Protocols', url: '/app/protocols' },
-      { name: 'Log a dose', url: '/app/tracker' },
+      { name: 'Log an entry', url: '/app/tracker' },
+      { name: 'Calculator', url: '/app/calculator' },
     ],
   }
 }
