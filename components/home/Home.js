@@ -17,6 +17,7 @@ import { useSession } from '@/lib/auth/session'
 import { formatDateTime } from '@/lib/format'
 import Button from '@/components/ui/Button'
 import Skeleton from '@/components/ui/Skeleton'
+import Avatar from '@/components/profile/Avatar'
 
 function StatCard({ label, value, accent, icon: Icon, pending }) {
   return (
@@ -101,14 +102,7 @@ export default function Home() {
             {user ? 'Your protocols at a glance' : 'Peptide tracking and reference'}
           </p>
         </div>
-        {user && (
-          <span
-            aria-hidden="true"
-            className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-teal/15 text-base font-bold text-teal"
-          >
-            {(user.email?.[0] ?? 'P').toUpperCase()}
-          </span>
-        )}
+        {user && <Avatar user={user} size={42} />}
       </header>
 
       {hasAccess && (

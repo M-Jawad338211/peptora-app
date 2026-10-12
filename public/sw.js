@@ -13,7 +13,7 @@
 // v4: the shell changed (navigation, the free library and calculator, the
 // /app entry route), so cached pages from v3 are evicted. Nothing under /api
 // is cached, in any version: see the fetch handler below.
-const VERSION = 'v4'
+const VERSION = 'v5'
 const SHELL_CACHE = `peptora-shell-${VERSION}`
 const STATIC_CACHE = `peptora-static-${VERSION}`
 const CURRENT = [SHELL_CACHE, STATIC_CACHE]

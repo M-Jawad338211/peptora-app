@@ -11,7 +11,7 @@ export default function Badge({ label, color = '#6b7788', title }) {
   return (
     <span
       title={title}
-      className="inline-flex items-center rounded-[5px] border px-[7px] py-[3px] text-[10px] font-bold tracking-[0.2px]"
+      className="inline-flex shrink-0 items-center rounded-[5px] border px-[7px] py-[3px] text-[10px] font-bold tracking-[0.2px] whitespace-nowrap"
       style={{
         color,
         backgroundColor: `${color}22`,

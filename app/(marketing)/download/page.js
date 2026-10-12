@@ -31,10 +31,10 @@ const STEPS = {
     'Confirm. Peptora appears alongside your other apps.',
   ],
   ios: [
-    'Open peptora.io in Safari. Only Safari can install a web app on iPhone and iPad.',
-    'Tap the Share button at the bottom of the screen.',
+    'Open peptora.io in Safari. Chrome, Edge and Firefox on iPhone can do this too.',
+    'Tap the Share button.',
     'Scroll down and choose "Add to Home Screen".',
-    'Tap Add. Peptora appears on your home screen.',
+    'Tap Add. Peptora appears on your home screen and opens full screen, like any other app.',
   ],
   desktop: [
     'Open peptora.io in Chrome, Edge or Arc.',
@@ -123,8 +123,22 @@ export default function DownloadPage() {
         )}
 
         <p className="mt-10 text-center text-[12px] leading-5 text-tx3-body">
-          Native Android and iOS apps are on the way. Until they are out,
-          the installed web app is the full Peptora.
+          {platform === 'ios'
+            ? 'On iPhone and iPad this is the full Peptora. There is nothing to download from the App Store: your account, protocols and log are the same ones you use everywhere else.'
+            : 'On iPhone and iPad, Peptora installs from the browser as described here. '}
+          {platform !== 'ios' && (
+            <>
+              On Android it is also on{' '}
+              <a
+                href="https://play.google.com/store/apps/details?id=app.peptora"
+                className="text-teal no-underline"
+                rel="noopener"
+              >
+                Google Play
+              </a>
+              .
+            </>
+          )}
         </p>
       </div>
     </>

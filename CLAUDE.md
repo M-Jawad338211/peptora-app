@@ -174,6 +174,38 @@ is safe to reach for there again.
   30s (not 3s — the scale is human), pauses when the tab is hidden, and
   refetches the session on approval because `useSession` caches for 5 minutes.
 
+## Account settings
+`/app/profile` is the account settings area, in three sections kept in the URL
+(`?tab=profile|security|billing`): photo, name, phone and email; password,
+two-factor authentication, other devices and recent activity; the plan card
+and billing history. The pieces are in `components/profile/`, the calls in
+`lib/api/index.js` under "Account settings".
+
+- Sign-in has a second step for an account with two-factor on. The API answers
+  the first request with 401 and `code: "two_factor_required"` (read it from
+  `ApiError.code`); the page keeps the email and password in memory and sends
+  the same request again with `totpCode` or `recoveryCode`.
+- A wrong password on a settings call is 403, never 401. A 401 still means the
+  session is over, so do not treat the two alike.
+- Changing the password and "Sign out of all other devices" end every other
+  session. The response sets new cookies for this browser, so nothing else is
+  needed here.
+- Recovery codes are shown once, after turning two-factor on or regenerating
+  them. The dialog does not close until the user confirms they saved them.
+- The photo is an `<img>` on `/api/auth/avatar?v=<avatar_updated_at>` through
+  the proxy (`components/profile/Avatar.js`), with the initial as fallback.
+- The phone number is a contact detail only. It is not verified, so never show
+  a verified mark for it.
+
+## Library
+- Category chips above the list filter it; a chip appears only for a category
+  that has entries (`components/encyclopedia/PeptideList.js`).
+- "Not Approved" is a neutral slate pill and "Withdrawn" is amber
+  (`FDA_COLOR` in `lib/peptide-format.js`). Red is kept for real warnings.
+  The native app uses the same values.
+- Older interaction entries carry `withSubstance` and `effect` instead of
+  `label` and `detail`; `ClaimList` reads both.
+
 ## Not in this app
 No AI features. The `/ai-assistant`, `/stack-checker`, `/protocol-finder`,
 `/vendors` and `/regulations` routes were removed and redirect to `/`.
