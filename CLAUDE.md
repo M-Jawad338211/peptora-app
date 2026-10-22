@@ -214,11 +214,14 @@ No crypto checkout UI. The NOWPayments rail still exists in the API but is
 parked behind `app_settings.crypto_payments_enabled`; `/app/pricing` and its
 components were removed and the route redirects to `/app/billing`.
 
-The one crypto surface is manual: `/app/billing` shows a wallet address from
-the `CRYPTO_*` env vars (`lib/crypto-payment.js`, server-only, read in the
-page and passed to `CryptoDetails`). The payer files the same claim as for a
-bank transfer, with the transaction hash as the reference. No `CRYPTO_ADDRESS`
-means no section.
+The one crypto surface is manual: `/app/billing` lets the payer pick a coin
+(BTC, ETH, BNB, USDT) and shows a table of the networks that coin can be sent
+on, each with its address. The four network addresses are `CRYPTO_*` env vars
+(server-only, read in the page and passed to `CryptoDetails`); the
+coin-to-network map is fixed in `lib/crypto-payment.js`, because a coin sent
+on a network the wallet does not take is lost. The payer files the same claim
+as for a bank transfer, with the transaction hash as the reference. No
+address set means no section.
 
 ## Local dev
 ```bash
