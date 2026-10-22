@@ -13,6 +13,7 @@ import Markdown from './Markdown'
 import HowItWorks from './HowItWorks'
 import ClaimForm from './ClaimForm'
 import ClaimStatus from './ClaimStatus'
+import CryptoDetails from './CryptoDetails'
 
 // What Peptora Pro adds. The library and the calculator are free and are not
 // part of the purchase.
@@ -30,8 +31,11 @@ const INCLUDED = [
  * This is the only product screen a user without a licence can reach, so it
  * has to answer everything at once: what it costs, how to pay, what happens
  * next, and where their existing payment got to.
+ *
+ * `crypto` is the optional wallet from the environment (lib/crypto-payment.js),
+ * read by the page on the server. Null hides the crypto section.
  */
-export default function Billing() {
+export default function Billing({ crypto = null }) {
   const { user } = useSession()
   const [forceForm, setForceForm] = useState(false)
 
@@ -196,7 +200,12 @@ export default function Billing() {
           </section>
 
           {cfg.manual_payments_enabled && (
-            <HowItWorks price={cfg.price} currency={cfg.currency} slaHours={cfg.review_sla_hours} />
+            <HowItWorks
+              price={cfg.price}
+              currency={cfg.currency}
+              slaHours={cfg.review_sla_hours}
+              crypto={!!crypto}
+            />
           )}
 
           {!cfg.manual_payments_enabled && (
@@ -223,6 +232,10 @@ export default function Billing() {
                 <Markdown source={cfg.bank_details_md} />
               </section>
 
+              {crypto && (
+                <CryptoDetails crypto={crypto} price={cfg.price} currency={cfg.currency} />
+              )}
+
               <section className="card mb-3 p-5">
                 <Markdown source={cfg.payment_instructions_md} />
               </section>
@@ -235,6 +248,7 @@ export default function Billing() {
                 price={cfg.price}
                 currency={cfg.currency}
                 slaHours={cfg.review_sla_hours}
+                crypto={!!crypto}
                 onDone={() => setForceForm(false)}
               />
             </div>

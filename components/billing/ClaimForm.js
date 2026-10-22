@@ -14,7 +14,7 @@ import Field from '@/components/ui/Field'
 const MAX_BYTES = 8 * 1024 * 1024
 const ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf'
 
-export default function ClaimForm({ price, currency, slaHours = 24, onDone }) {
+export default function ClaimForm({ price, currency, slaHours = 24, crypto = false, onDone }) {
   const queryClient = useQueryClient()
   const fileInput = useRef(null)
 
@@ -105,7 +105,11 @@ export default function ClaimForm({ price, currency, slaHours = 24, onDone }) {
           value={reference}
           onChange={(e) => setReference(e.target.value)}
           error={errors.reference}
-          hint="The transaction ID or reference number from your bank."
+          hint={
+            crypto
+              ? 'The transaction ID or reference number from your bank, or the transaction hash if you paid in crypto.'
+              : 'The transaction ID or reference number from your bank.'
+          }
           placeholder="e.g. FT25091200412"
           autoComplete="off"
           required

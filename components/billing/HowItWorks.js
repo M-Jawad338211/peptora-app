@@ -13,8 +13,10 @@ const STEPS = [
   {
     icon: Send,
     title: 'Send the payment',
-    body: (price) =>
-      `Transfer ${price} to the account shown below. Use your own bank app or branch. Peptora never asks for card details.`,
+    body: (price, _window, crypto) =>
+      crypto
+        ? `Transfer ${price} to the bank account shown below, or send the same amount in crypto to the wallet under it. Peptora never asks for card details.`
+        : `Transfer ${price} to the account shown below. Use your own bank app or branch. Peptora never asks for card details.`,
   },
   {
     icon: Upload,
@@ -36,7 +38,7 @@ const STEPS = [
   },
 ]
 
-export default function HowItWorks({ price, currency, slaHours = 24 }) {
+export default function HowItWorks({ price, currency, slaHours = 24, crypto = false }) {
   const window = slaHours >= 24 ? 'about one business day' : `about ${slaHours} hours`
   const priceLabel = `${currency === 'USD' ? '$' : ''}${price}${currency !== 'USD' ? ` ${currency}` : ''}`
 
@@ -62,7 +64,7 @@ export default function HowItWorks({ price, currency, slaHours = 24 }) {
                   {step.title}
                 </p>
                 <p className="mt-1 text-[13px] leading-6 text-tx3-body">
-                  {step.body(priceLabel, window)}
+                  {step.body(priceLabel, window, crypto)}
                 </p>
               </div>
             </li>
