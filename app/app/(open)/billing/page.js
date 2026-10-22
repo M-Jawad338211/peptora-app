@@ -1,4 +1,5 @@
 import Billing from '@/components/billing/Billing'
+import { cryptoPaymentFromEnv } from '@/lib/crypto-payment'
 
 export const metadata = {
   title: 'Peptora Pro · Peptora',
@@ -14,7 +15,10 @@ export const metadata = {
  * dumping you onto a website to take your money. Outside the gate, because
  * this is the one screen a user without a licence must always be able to
  * reach — gating it would trap a user who has already paid.
+ *
+ * The crypto wallet is read here, on the server, so its variables need no
+ * NEXT_PUBLIC_ prefix.
  */
 export default function BillingPage() {
-  return <Billing />
+  return <Billing crypto={cryptoPaymentFromEnv()} />
 }
