@@ -15,7 +15,7 @@ const STEPS = [
     title: 'Send the payment',
     body: (price, _window, crypto) =>
       crypto
-        ? `Transfer ${price} to the bank account shown below, or send the same amount in crypto to the wallet under it. Peptora never asks for card details.`
+        ? `Transfer ${price} to the bank account shown below, or send the same amount in crypto to one of the wallets under it. Peptora never asks for card details.`
         : `Transfer ${price} to the account shown below. Use your own bank app or branch. Peptora never asks for card details.`,
   },
   {

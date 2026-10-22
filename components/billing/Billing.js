@@ -32,8 +32,9 @@ const INCLUDED = [
  * has to answer everything at once: what it costs, how to pay, what happens
  * next, and where their existing payment got to.
  *
- * `crypto` is the optional wallet from the environment (lib/crypto-payment.js),
- * read by the page on the server. Null hides the crypto section.
+ * `crypto` holds the optional wallets from the environment
+ * (lib/crypto-payment.js), read by the page on the server. Null hides the
+ * crypto section.
  */
 export default function Billing({ crypto = null }) {
   const { user } = useSession()
