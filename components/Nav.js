@@ -10,7 +10,7 @@ function NavLogo() {
   return (
     <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
       <Logo />
-      <span style={{ fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 600, color: "var(--tx)", letterSpacing: "-0.2px" }}>
+      <span style={{ fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 600, color: "var(--tx)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
         Peptora
       </span>
     </Link>

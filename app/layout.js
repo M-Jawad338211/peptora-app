@@ -27,6 +27,9 @@ export const metadata = {
     title: 'Peptora',
   },
   icons: {
+    // Browsers that take an SVG favicon prefer it to app/favicon.ico. Listed
+    // here because a config `icons` entry hides a file-based app/icon.svg.
+    icon: { url: '/logo-small.svg', type: 'image/svg+xml' },
     // iOS ignores manifest icons for the home-screen icon in several versions,
     // so this link is what gives an installed app its icon there.
     apple: '/icons/apple-touch-icon.png',

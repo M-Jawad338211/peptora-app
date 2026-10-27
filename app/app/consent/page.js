@@ -69,7 +69,7 @@ export default function ConsentPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[680px] flex-col bg-navy px-5 py-10">
       <header className="mb-6">
-        <p className="mb-2 text-[22px] font-extrabold tracking-[1px] text-teal">
+        <p className="mb-2 text-[22px] font-extrabold tracking-[0.18em] text-teal uppercase">
           Peptora
         </p>
         <h1 className="mb-1.5 text-[22px] font-bold text-tx">Terms of Use</h1>

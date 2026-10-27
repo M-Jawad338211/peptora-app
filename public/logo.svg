@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="27 8 1200 1200">
+  <title>Peptora</title>
+  <defs>
+    <radialGradient id="core" cx="0.42" cy="0.38" r="0.65">
+      <stop offset="0" stop-color="#d9fff9"/>
+      <stop offset="0.45" stop-color="#4ff8de"/>
+      <stop offset="1" stop-color="#00e3b8"/>
+    </radialGradient>
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#00f5c9" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#00f5c9" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+
+  <!-- Outer hexagon: the body of the mark -->
+  <polygon points="627,31 1111,314 1111,902 627,1184 142,902 142,314" fill="#030d16"/>
+  <polygon points="627,31 1111,314 1111,902 627,1184 142,902 142,314" fill="none" stroke="#2ef2df" stroke-width="22" stroke-opacity="0.35" stroke-linejoin="round" filter="url(#glow)"/>
+  <polygon points="627,31 1111,314 1111,902 627,1184 142,902 142,314" fill="none" stroke="#3ef7e6" stroke-width="11" stroke-linejoin="round"/>
+
+  <!-- Inner hexagon: the same shape at 78.5% -->
+  <polygon points="627,155 1007,377 1007,839 627,1060 246,839 246,377" fill="none" stroke="#1fd8bd" stroke-width="3.5" stroke-opacity="0.6" stroke-linejoin="round"/>
+
+  <!-- Bridge between the two arcs -->
+  <g stroke="#00f0c4" stroke-width="7">
+    <line x1="530" y1="469.5" x2="724" y2="469.5"/>
+    <line x1="530" y1="744.5" x2="724" y2="744.5"/>
+  </g>
+
+  <!-- The two arcs -->
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#00f5c9" stroke-width="40" stroke-opacity="0.3" filter="url(#glow)">
+      <path d="M397 343 A290.6 290.6 0 0 1 397 872"/>
+      <path d="M857 343 A290.6 290.6 0 0 0 857 872"/>
+    </g>
+    <g stroke="#00f5c9" stroke-width="25">
+      <path d="M397 343 A290.6 290.6 0 0 1 397 872"/>
+      <path d="M857 343 A290.6 290.6 0 0 0 857 872"/>
+    </g>
+  </g>
+
+  <!-- Core -->
+  <circle cx="627" cy="611" r="92" fill="url(#halo)"/>
+  <circle cx="627" cy="611" r="47.5" fill="url(#core)"/>
+</svg>

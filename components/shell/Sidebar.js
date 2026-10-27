@@ -28,7 +28,7 @@ export default function Sidebar() {
         className="flex items-center gap-2.5 px-5 py-4 no-underline"
       >
         <Logo />
-        <span className="text-[17px] font-semibold tracking-[-0.2px] text-tx">
+        <span className="text-[16px] font-semibold tracking-[0.18em] text-tx uppercase">
           Peptora
         </span>
       </Link>

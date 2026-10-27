@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="27 8 1200 1200">
+  <!-- logo.svg simplified for 16-48px: no inner hexagon, bridge or glow,
+       and every stroke thickened so it survives the downscale. -->
+  <title>Peptora</title>
+  <polygon points="627,31 1111,314 1111,902 627,1184 142,902 142,314" fill="#030d16" stroke="#3ef7e6" stroke-width="44" stroke-linejoin="round"/>
+  <g fill="none" stroke="#00f5c9" stroke-width="64" stroke-linecap="round">
+    <path d="M397 343 A290.6 290.6 0 0 1 397 872"/>
+    <path d="M857 343 A290.6 290.6 0 0 0 857 872"/>
+  </g>
+  <circle cx="627" cy="608" r="78" fill="#7dfbe6"/>
+</svg>
